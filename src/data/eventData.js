@@ -15,21 +15,44 @@ export const eventCategories = [
 export const eventData = [
   {
     id: 1,
-    slug: "yudisium-ke-98",
-    title: "Yudisium ke-98",
+    slug: "penglepasan-lulusan-ke-98-september-2026",
+    title: "Penglepasan Lulusan Ke-98 Periode September 2026",
     date: "2026-09-18",
-    time: "02:00 - Selesai",
-    category: "Seminar & Konferensi",
-    venue: "Gedung MAC (Majapahit Convention) atau MAC Ballroom Jl. Majapahit No.168, Gayamsari, Kota Semarang",
-    speaker: "Prof. Dr. H. Ahmad Fauzan, S.H., M.Hum. & Dirjen Penetapan Hak dan Pendaftaran Tanah ATR/BPN",
-    organizer: "Program Studi Magister Kenotariatan UNISSULA",
+    time: "14:00 - 17:30 WIB",
+    category: "Akademik & Kemahasiswaan",
+    venue:
+      "Gedung MAC (Majapahit Convention) / MAC Ballroom, Jl. Majapahit No.168, Gayamsari, Kota Semarang",
+    organizer: "Program Studi Magister Kenotariatan FH UNISSULA",
     description:
-      "Yudisium ke-98 akan menghadirkan para ahli dan regulator untuk membahas kesiapan profesi notaris/PPAT dalam mengimplementasikan peralihan hak secara digital, kepastian hukum warkah elektronik, dan perlindungan bagi pembeli beriktikad baik.",
+      "Penglepasan Lulusan Ke-98 Periode September 2026 sebagai bentuk penghargaan atas capaian akademik para lulusan Program Magister Kenotariatan, sekaligus ruang silaturahmi antara pimpinan, dosen, tenaga kependidikan, lulusan, dan keluarga.",
     fullDescription:
-      "Seminar nasional ini menghadirkan regulator dari Kementerian ATR/BPN serta pakar hukum pertanahan untuk mengkaji kesiapan profesi notaris/PPAT dalam mengimplementasikan peralihan hak secara digital, kepastian hukum warkah elektronik, dan perlindungan bagi pembeli beriktikad baik.",
-    image:
-      yudisium,
-    registrationUrl: "https://unissula.ac.id/pendaftaran-seminar",
+      "Fakultas Hukum Universitas Islam Sultan Agung (MKn FH UNISSULA) akan menyelenggarakan " +
+      "Penglepasan Lulusan Ke-98 Periode September 2026 sebagai rangkaian kegiatan akademik " +
+      "sekaligus bentuk penghargaan kepada para lulusan yang telah menyelesaikan seluruh proses " +
+      "pendidikan pada Program Magister Kenotariatan.\n\n" +
+      "Kegiatan penglepasan lulusan akan dilaksanakan di Gedung MAC (Majapahit Convention) atau " +
+      "MAC Ballroom, yang berlokasi di Jl. Majapahit No.168, Gayamsari, Kota Semarang. Acara " +
+      "dijadwalkan berlangsung mulai pukul 14.00 hingga 17.30 WIB.\n\n" +
+      "Penglepasan lulusan merupakan momentum penting bagi Program Studi MKn FH UNISSULA untuk " +
+      "memberikan apresiasi atas capaian akademik para lulusan, sekaligus menjadi ruang silaturahmi " +
+      "antara pimpinan, dosen, tenaga kependidikan, lulusan, dan keluarga. Kegiatan ini juga menandai " +
+      "berakhirnya satu tahapan pendidikan dan dimulainya perjalanan baru bagi para lulusan untuk " +
+      "mengimplementasikan ilmu pengetahuan, keterampilan, serta nilai-nilai yang diperoleh selama " +
+      "menempuh pendidikan.\n\n" +
+      "Melalui pendidikan di Magister Kenotariatan FH UNISSULA, para lulusan diharapkan mampu " +
+      "mengembangkan kompetensi di bidang hukum kenotariatan serta menerapkannya secara profesional, " +
+      "berintegritas, dan bertanggung jawab dalam kehidupan bermasyarakat maupun dalam menjalankan " +
+      "profesi.\n\n" +
+      "Momentum Penglepasan Lulusan Ke-98 Periode September 2026 juga diharapkan semakin mempererat " +
+      "hubungan antara alumni dan almamater. Para lulusan tidak hanya menjadi bagian dari keluarga " +
+      "besar UNISSULA, tetapi juga diharapkan berperan sebagai mitra strategis dalam membangun " +
+      "jejaring profesi, memberikan kontribusi bagi pengembangan Program Studi, serta membawa nama " +
+      "baik almamater di tengah masyarakat.\n\n" +
+      "Dengan semangat Bismillah Membangun Generasi Khaira Ummah, MKn FH UNISSULA mengucapkan selamat " +
+      "kepada seluruh lulusan Periode September 2026. Semoga ilmu dan pengalaman yang diperoleh selama " +
+      "menempuh pendidikan menjadi bekal untuk berkarya, mengabdi, serta memberikan kemanfaatan yang " +
+      "sebesar-besarnya bagi masyarakat, bangsa, dan negara.",
+    image: yudisium,
     cp: "+62 823-1222-8181 (Ikrom, S.H., M.H.)",
     isFeatured: true,
   },

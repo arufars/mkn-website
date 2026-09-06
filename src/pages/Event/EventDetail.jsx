@@ -139,33 +139,41 @@ export default function EventDetail() {
               </Link>
             </div>
 
-            {/* Header Acara & Flyer (Side by Side) */}
-            <div className="flex flex-col-reverse lg:flex-row lg:items-start justify-between gap-8 pb-8 border-b border-gray-200">
-              <div className="space-y-4 max-w-2xl">
-                <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-heading font-medium text-heading leading-[1.18] tracking-tight">
-                  {event.title}
-                </h1>
-
-                <div className="space-y-0.5 pt-1">
-                  <div className="text-base sm:text-lg font-bold text-heading">
-                    {formatIndoDate(event.date)}
-                  </div>
-                  <div className="text-sm text-gray-600 font-normal">
-                    {getIndoDayName(event.date)}, {event.time}
-                  </div>
-                </div>
-              </div>
-
-              {/* Flyer Gambar di Kanan Atas (Sesuai Screenshot Harvard) */}
-              {event.image && (
-                <div className="w-full sm:w-72 lg:w-80 aspect-[4/3] rounded-xs overflow-hidden border border-gray-200 shadow-2xs shrink-0 bg-gray-50">
+            {/* Flyer / Dokumentasi Acara — banner besar selebar kolom konten.
+                object-contain + max-h menjaga poster potret maupun banner lanskap
+                tampil utuh tanpa terpotong. */}
+            {event.image && (
+              <figure className="w-full overflow-hidden rounded-xs border border-gray-200 bg-gray-50 shadow-2xs">
+                <a
+                  href={event.image}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Buka gambar ukuran penuh"
+                  className="block group/flyer"
+                >
                   <img
                     src={event.image}
                     alt={event.title}
-                    className="w-full h-full object-cover object-center rounded-md hover:scale-105 transition-transform duration-500"
+                    className="w-full h-auto max-h-[78vh] object-contain mx-auto transition-transform duration-500 group-hover/flyer:scale-[1.015]"
                   />
+                </a>
+              </figure>
+            )}
+
+            {/* Header Acara */}
+            <div className="space-y-4 pb-8 border-b border-gray-200">
+              <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-heading font-medium text-heading leading-[1.15] tracking-tight max-w-4xl">
+                {event.title}
+              </h1>
+
+              <div className="space-y-0.5 pt-1">
+                <div className="text-base sm:text-lg font-bold text-heading">
+                  {formatIndoDate(event.date)}
                 </div>
-              )}
+                <div className="text-sm text-gray-600 font-normal">
+                  {getIndoDayName(event.date)}, {event.time}
+                </div>
+              </div>
             </div>
 
             {/* Konten Utama & Metadata Sidebar (Sub-grid) */}
@@ -180,14 +188,24 @@ export default function EventDetail() {
                   </div>
                 )}
 
-                {/* Paragraf Narasi Acara */}
+                {/* Paragraf Narasi Acara — fullDescription dipecah per paragraf
+                    agar naskah panjang tetap enak dibaca. */}
                 <div className="space-y-4 pt-1">
                   <p className="font-medium text-heading">
                     {event.description}
                   </p>
-                  <p className="whitespace-pre-line text-gray-600 text-sm leading-relaxed">
-                    {event.fullDescription || event.description}
-                  </p>
+
+                  {(event.fullDescription || event.description)
+                    .split(/\n\s*\n/)
+                    .filter((paragraf) => paragraf.trim())
+                    .map((paragraf, idx) => (
+                      <p
+                        key={idx}
+                        className="text-gray-600 text-[15px] leading-7 text-justify"
+                      >
+                        {paragraf.trim()}
+                      </p>
+                    ))}
                 </div>
 
                 {/* Informasi Narasumber */}
