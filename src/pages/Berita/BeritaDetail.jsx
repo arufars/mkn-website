@@ -11,6 +11,9 @@ import {
   FiShare2,
   FiCheck,
   FiArrowRight,
+  FiDownload,
+  FiPaperclip,
+  FiFileText,
 } from "react-icons/fi";
 import { FaWhatsapp, FaTwitter } from "react-icons/fa";
 import Navbar from "../../components/Navbar";
@@ -80,6 +83,7 @@ export default function BeritaDetail() {
       authorRole: halaman.redaksi,
       paragraphs,
       tags: Array.isArray(rawArticle.tags) ? rawArticle.tags : [rawArticle.tags || "News"],
+      lampiran: Array.isArray(rawArticle.lampiran) ? rawArticle.lampiran : [],
     };
   }, [rawArticle]);
 
@@ -146,11 +150,21 @@ export default function BeritaDetail() {
           {/* Back button */}
           <div className="mb-6">
             <button
-              onClick={() => navigate("/berita")}
+              onClick={() =>
+                navigate(
+                  article.category === "Pengumuman" || article.tags?.includes("Pengumuman")
+                    ? "/berita?kategori=pengumuman"
+                    : "/berita"
+                )
+              }
               className="inline-flex items-center space-x-2 text-xs font-semibold text-gray-500 hover:text-primary transition-colors cursor-pointer"
             >
               <FiArrowLeft className="text-sm" />
-              <span>KEMBALI KE SEMUA BERITA</span>
+              <span>
+                {article.category === "Pengumuman" || article.tags?.includes("Pengumuman")
+                  ? "KEMBALI KE SEMUA PENGUMUMAN"
+                  : "KEMBALI KE SEMUA BERITA"}
+              </span>
             </button>
           </div>
 
@@ -297,6 +311,68 @@ export default function BeritaDetail() {
                   {article.sumber.nama}
                 </a>
               </p>
+            )}
+
+            {/* Lampiran Dokumen — jika pengumuman / artikel menyertakan berkas unduhan */}
+            {article.lampiran?.length > 0 && (
+              <div className="my-8 pt-6 border-t border-gray-200">
+                <div className="bg-red-50/40 border border-primary/20 rounded-xs p-5 sm:p-7">
+                  <div className="flex items-center gap-2.5 mb-2 text-heading font-heading text-lg sm:text-xl font-normal">
+                    <FiPaperclip className="text-primary text-xl" />
+                    <span>Dokumen & Berkas Lampiran</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-body/80 mb-5">
+                    Silakan unduh dokumen resmi terkait pengumuman ini melalui tautan di bawah:
+                  </p>
+                  <div className="space-y-3">
+                    {article.lampiran.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-white border border-gray-200 rounded-xs hover:border-primary/50 transition-colors shadow-2xs"
+                      >
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="w-11 h-11 rounded-xs bg-red-50 border border-primary/20 text-primary flex items-center justify-center shrink-0">
+                            <FiFileText className="text-xl" />
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="text-sm sm:text-base font-semibold text-heading truncate">
+                              {file.judul || file.nama}
+                            </h4>
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mt-0.5">
+                              <span className="uppercase font-bold text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                                {file.format || "PDF"}
+                              </span>
+                              <span>&bull;</span>
+                              <span>{file.ukuran}</span>
+                              {file.nama && (
+                                <>
+                                  <span className="hidden sm:inline">&bull;</span>
+                                  <span className="hidden sm:inline truncate max-w-[280px] text-gray-400">
+                                    {file.nama}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <a
+                            href={file.url}
+                            download={file.nama}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-[#680000] text-white text-xs font-semibold rounded-xs transition-colors shadow-2xs"
+                          >
+                            <FiDownload className="text-sm" />
+                            <span>Unduh Berkas</span>
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Tags Section */}

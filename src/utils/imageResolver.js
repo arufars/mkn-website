@@ -8,7 +8,7 @@
  */
 
 const beritaImages = import.meta.glob(
-  "/src/assets/images/berita/**/*.{jpg,jpeg,png,webp,avif}",
+  "/src/assets/images/**/*.{jpg,jpeg,png,webp,avif}",
   { eager: true, import: "default" }
 );
 

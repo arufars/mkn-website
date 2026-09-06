@@ -1418,57 +1418,107 @@
   },
   {
     "id": "p1",
-    "title": "Jadwal perkuliahan semester gasal 2026/2027 telah terbit",
+    "title": "Jadwal Perkuliahan Semester Gasal TA 2026/2027 Magister Kenotariatan",
+    "slug": "jadwal-perkuliahan-semester-gasal-2026-2027",
     "author": "admkn",
     "tags": "Pengumuman",
     "kategori": "Akademik",
     "tanggal": "24 Agustus 2026",
-    "berlakuHingga": "—",
-    "gambar": "",
-    "content": ""
+    "berlakuHingga": "30 Sep 2026",
+    "gambar": "src/assets/images/berita/2026/2026-berita-1.1.webp",
+    "content": "Diberitahukan kepada seluruh mahasiswa Program Studi Magister Kenotariatan Fakultas Hukum UNISSULA bahwa jadwal perkuliahan Semester Gasal Tahun Akademik 2026/2027 telah resmi diterbitkan.\n\nMahasiswa dimohon untuk memeriksa pembagian kelas, jadwal mata kuliah, serta dosen pengampu masing-masing melalui SIAKAD UNISSULA dan pedoman terlampir.\n\nSilakan unduh dokumen jadwal perkuliahan lengkap beserta daftar ruang kelas pada lampiran di bawah ini.",
+    "lampiran": [
+      {
+        "nama": "Jadwal-Kuliah-Gasal-2026-2027.pdf",
+        "judul": "Jadwal Kuliah Semester Gasal 2026/2027",
+        "format": "PDF",
+        "ukuran": "237 KB",
+        "url": "/pdf/pengumuman/jadwal-kuliah-gasal-2026.pdf"
+      }
+    ]
   },
   {
     "id": "p2",
-    "title": "Pendaftaran gelombang dua dibuka sampai 12 September",
+    "title": "Penerimaan Mahasiswa Baru Gelombang II Magister Kenotariatan 2026",
+    "slug": "penerimaan-mahasiswa-baru-gelombang-ii-2026",
     "author": "admkn",
     "tags": "Pengumuman",
     "kategori": "Penerimaan",
     "tanggal": "20 Agustus 2026",
     "berlakuHingga": "12 Sep 2026",
-    "gambar": "",
-    "content": ""
+    "gambar": "src/assets/images/berita/2026/2026-berita-2.1.webp",
+    "content": "Program Studi Magister Kenotariatan (MKn) Fakultas Hukum Universitas Islam Sultan Agung membuka pendaftaran Calon Mahasiswa Baru Gelombang II hingga 12 September 2026.\n\nProgram studi terakreditasi Unggul oleh BAN-PT dan Premier oleh ASIC International siap mencetak calon Notaris & PPAT yang profesional, berkarakter Islami, dan berdaya saing global.\n\nUnduh brosur resmi, persyaratan pendaftaran, dan rincian biaya perkuliahan melalui lampiran berikut.",
+    "lampiran": [
+      {
+        "nama": "Brosur-PMB-Gelombang-II-MKn.pdf",
+        "judul": "Brosur & Panduan Pendaftaran PMB Gelombang II",
+        "format": "PDF",
+        "ukuran": "3.2 MB",
+        "url": "/pdf/pengumuman/brosur-pmb-gelombang-ii.pdf"
+      }
+    ]
   },
   {
     "id": "p3",
-    "title": "Batas akhir pengajuan judul tesis semester ini",
+    "title": "Batas Akhir Pengajuan Judul dan Matriks Proposal Tesis Semester Gasal",
+    "slug": "batas-akhir-pengajuan-judul-tesis-gasal-2026",
     "author": "admkn",
     "tags": "Pengumuman",
     "kategori": "Tesis",
     "tanggal": "15 Agustus 2026",
     "berlakuHingga": "30 Sep 2026",
-    "gambar": "",
-    "content": ""
+    "gambar": "src/assets/images/berita/2026/2026-berita-3.1.webp",
+    "content": "Diumumkan kepada mahasiswa Program Studi Magister Kenotariatan yang telah menyelesaikan beban SKS prasyarat tesis bahwa batas akhir pengajuan judul dan matriks proposal tesis untuk semester gasal adalah 30 September 2026.\n\nPengajuan dilakukan dengan mengunggah formulir pengajuan judul yang telah disetujui dosen penasihat akademik ke sekretariat program studi.\n\nFormulir pengajuan serta pedoman format penulisan proposal tesis dapat diunduh pada tautan lampiran di bawah ini.",
+    "lampiran": [
+      {
+        "nama": "Formulir-Pengajuan-Judul-Tesis.pdf",
+        "judul": "Pedoman Penulisan & Formulir Judul Tesis",
+        "format": "PDF",
+        "ukuran": "1.1 MB",
+        "url": "/pdf/pengumuman/formulir-pengajuan-tesis.pdf"
+      }
+    ]
   },
   {
     "id": "p4",
-    "title": "Pendaftaran anggota unit kegiatan mahasiswa dibuka",
+    "title": "Pendaftaran Anggota Pengurus Ikatan Mahasiswa Notariat (IMANU) Periode 2026/2027",
+    "slug": "open-recruitment-imanu-2026",
     "author": "admkn",
     "tags": "Pengumuman",
     "kategori": "Kemahasiswaan",
     "tanggal": "11 Agustus 2026",
     "berlakuHingga": "19 Sep 2026",
-    "gambar": "",
-    "content": ""
+    "gambar": "src/assets/images/imanu-kegiatan.jpeg",
+    "content": "Ikatan Mahasiswa Notariat (IMANU) UNISSULA membuka rekrutmen anggota pengurus baru untuk periode kepengurusan 2026/2027. Terbuka bagi seluruh mahasiswa aktif Magister Kenotariatan angkatan 2025 dan 2026.\n\nDivisi yang dibuka meliputi: Keilmuan & Debat Kenotariatan, Pengabdian Kepada Masyarakat, Hubungan Eksternal, serta Media & Informasi.\n\nUnduh formulir pendaftaran dan panduan seleksi calon pengurus pada berkas lampiran di bawah ini.",
+    "lampiran": [
+      {
+        "nama": "Panduan-Oprec-IMANU-2026.pdf",
+        "judul": "Buku Panduan & Formulir Oprec IMANU 2026",
+        "format": "PDF",
+        "ukuran": "167 KB",
+        "url": "/pdf/pengumuman/panduan-oprec-imanu-2026.pdf"
+      }
+    ]
   },
   {
     "id": "p5",
-    "title": "Survei kepuasan mahasiswa semester genap dapat diisi",
+    "title": "Pelaksanaan Survei Kepuasan Mahasiswa Terhadap Layanan Akademik Semester Genap",
+    "slug": "survei-kepuasan-layanan-akademik-genap",
     "author": "admkn",
     "tags": "Pengumuman",
     "kategori": "Penjaminan mutu",
     "tanggal": "4 Agustus 2026",
     "berlakuHingga": "10 Sep 2026",
-    "gambar": "",
-    "content": ""
+    "gambar": "src/assets/images/berita/2026/2026-berita-5.1.webp",
+    "content": "Gugus Penjaminan Mutu Program Studi Magister Kenotariatan FH UNISSULA menyelenggarakan survei kepuasan mahasiswa atas proses pembelajaran dan sarana laboratorium semester genap.\n\nPartisipasi seluruh mahasiswa sangat diharapkan guna mempertahankan standar mutu pendidikan akreditasi Unggul.\n\nPetunjuk tata cara pengisian survei evaluasi mutu dapat diunduh pada dokumen lampiran berikut.",
+    "lampiran": [
+      {
+        "nama": "Petunjuk-Survei-Evaluasi-Mutu.pdf",
+        "judul": "Petunjuk Teknis Pengisian Survei Evaluasi Mutu",
+        "format": "PDF",
+        "ukuran": "66 KB",
+        "url": "/pdf/pengumuman/petunjuk-evaluasi-mutu.pdf"
+      }
+    ]
   }
 ]

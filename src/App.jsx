@@ -112,6 +112,7 @@ export default function App() {
         {/* Berita — catalog & detail routes */}
         <Route path="/berita" element={<BeritaIndex />} />
         <Route path="/berita/:slug" element={<BeritaDetail />} />
+        <Route path="/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
 
         {/* Akademik — nested routes */}
         <Route path="/akademik" element={<AkademikLayout />}>
