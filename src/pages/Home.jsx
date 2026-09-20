@@ -12,6 +12,7 @@ import Ready from "../components/Home/Ready";
 import Highlight from "../components/Home/Highlight";
 import Announcement from "../components/Home/Announcement";
 import { useT } from "../i18n/languageContext";
+import { useEffect } from "react";
 
 const metaHome = {
   title: {
@@ -30,6 +31,24 @@ const metaHome = {
 
 export default function Home() {
   const t = useT();
+  useEffect(() => {
+    const fetchJadwal = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:1337/api/pengumumen?populate=*"
+        );
+
+        const json = await res.json();
+
+        console.log(json);
+        
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchJadwal();
+  }, []);
 
   return (
     <>

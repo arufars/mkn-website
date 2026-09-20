@@ -17,6 +17,10 @@ const StrukturOrganisasi = lazy(() => import("./pages/Profil/StrukturOrganisasi"
 // Berita sub-pages
 const BeritaIndex = lazy(() => import("./pages/Berita/index"));
 const BeritaDetail = lazy(() => import("./pages/Berita/BeritaDetail"));
+const BeritaV2 = lazy(() => import("./pages/Berita/v2/BeritaV2Index"));
+const BeritaV2Detail = lazy(() => import("./pages/Berita/v2/BeritaV2Detail"));
+const PengumumanV2Index = lazy(() => import("./pages/Berita/v2-pengumuman/PengumumanV2Index"));
+const PengumumanV2Detail = lazy(() => import("./pages/Berita/v2-pengumuman/PengumumanV2Detail"));
 
 const AkademikLayout = lazy(() => import("./pages/Akademik/index"));
 const Kurikulum = lazy(() => import("./pages/Akademik/Kurikulum"));
@@ -88,6 +92,9 @@ const Prestasi = lazy(() => import("./pages/StudentLife/Prestasi"));
 // Event sub-pages
 const EventPage = lazy(() => import("./pages/Event/index"));
 const EventDetailPage = lazy(() => import("./pages/Event/EventDetail"));
+// Event V2 — Strapi CMS
+const AgendaV2 = lazy(() => import("./pages/Event/v2/AgendaV2Index"));
+const AgendaV2Detail = lazy(() => import("./pages/Event/v2/AgendaV2Detail"));
 
 // Alumni & Karir sub-pages
 const AlumniLayout = lazy(() => import("./pages/Alumni/index"));
@@ -130,7 +137,15 @@ export default function App() {
         {/* Berita — catalog & detail routes */}
         <Route path="/berita" element={<BeritaIndex />} />
         <Route path="/berita/:slug" element={<BeritaDetail />} />
+        <Route path="/berita-v2" element={<BeritaV2 />} />
+        <Route path="/berita-v2/:title" element={<BeritaV2Detail />} />
         <Route path="/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
+
+        {/* Pengumuman V2 — Strapi CMS */}
+        <Route path="/pengumuman-v2" element={<PengumumanV2Index />} />
+        <Route path="/pengumuman-v2/:slug" element={<PengumumanV2Detail />} />
+        <Route path="/berita-v2/pengumuman" element={<PengumumanV2Index />} />
+        <Route path="/berita-v2/pengumuman/:slug" element={<PengumumanV2Detail />} />
 
         {/* Akademik — nested routes */}
         <Route path="/akademik" element={<AkademikLayout />}>
@@ -255,6 +270,10 @@ export default function App() {
         <Route path="/event" element={<EventPage />} />
         <Route path="/event/:slug" element={<EventDetailPage />} />
         <Route path="/agenda" element={<Navigate to="/event" replace />} />
+
+        {/* Event V2 / Agenda V2 — Strapi CMS */}
+        <Route path="/event-v2" element={<AgendaV2 />} />
+        <Route path="/event-v2/:slug" element={<AgendaV2Detail />} />
 
         {/* Kerja Sama */}
         <Route path="/kerja-sama" element={<KerjaSama />} />
