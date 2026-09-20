@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-import { FiAward, FiExternalLink } from "react-icons/fi";
+import { FiArrowUpRight, FiAward } from "react-icons/fi";
 
 import { useT } from "../../i18n/languageContext";
 import { useUi } from "../../i18n/useUi";
@@ -125,13 +125,13 @@ function KartuJurnal({ item }) {
               href={item.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary hover:bg-[#680000] text-white rounded-xs text-xs sm:text-sm font-semibold transition-colors"
+              className="group inline-flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase text-primary"
             >
-              <FiExternalLink className="text-base" />
               <span>{t(halaman.labelBuka)}</span>
+              <FiArrowUpRight className="text-sm transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
           ) : (
-            <span className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-dashed border-gray-300 bg-gray-50 text-gray-400 rounded-xs text-xs sm:text-sm font-semibold cursor-not-allowed select-none">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase text-gray-400 cursor-not-allowed select-none">
               {t(halaman.belumTersedia)}
             </span>
           )}

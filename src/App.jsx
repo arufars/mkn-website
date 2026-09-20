@@ -30,6 +30,7 @@ const Panduan = lazy(() => import("./pages/Akademik/Panduan"));
 const Rps = lazy(() => import("./pages/Akademik/Rps"));
 const PanduanEvaluasi = lazy(() => import("./pages/Akademik/PanduanEvaluasi"));
 const PanduanUjian = lazy(() => import("./pages/Akademik/PanduanUjian"));
+const PendaftaranTesis = lazy(() => import("./pages/Akademik/PendaftaranTesis"));
 const UtsUas = lazy(() => import("./pages/Akademik/UtsUas"));
 const Tesis = lazy(() => import("./pages/Akademik/Tesis"));
 const TesisPraProposal = lazy(() => import("./pages/Akademik/TesisPraProposal"));
@@ -156,6 +157,8 @@ export default function App() {
           {/* Alias lama: kurikulum tidak lagi dipisah reguler/internasional */}
           <Route path="kurikulum/*" element={<Navigate to="../kurikulum" replace />} />
           <Route path="panduan-akademik" element={<Panduan />} />
+          {/* Khusus mahasiswa — tautan formulir dibuka dengan kata sandi */}
+          <Route path="panduan-akademik/pendaftaran-tesis" element={<PendaftaranTesis />} />
           {/* RPS & Evaluasi Pembelajaran — tiga halaman anak, tanpa tab */}
           <Route path="pembelajaran">
             <Route index element={<Navigate to="rps" replace />} />
@@ -256,6 +259,8 @@ export default function App() {
 
         {/* Akomodasi — Standalone page dengan PageTabs Asrama & Guest House (tanpa sidebar) */}
         <Route path="/mahasiswa/akomodasi" element={<Navigate to="/mahasiswa/akomodasi/asrama" replace />} />
+        {/* Tab "Pujasera" sudah berganti nama menjadi "Kantin"; tautan lama diarahkan ke slug baru. */}
+        <Route path="/mahasiswa/akomodasi/pujasera" element={<Navigate to="/mahasiswa/akomodasi/kantin" replace />} />
         <Route path="/mahasiswa/akomodasi/:tab" element={<Accommodation />} />
 
         {/* Prestasi — Gallery foto prestasi mahasiswa */}

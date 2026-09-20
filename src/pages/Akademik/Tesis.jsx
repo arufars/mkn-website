@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-import { NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
+import { FiLock, FiArrowRight } from "react-icons/fi";
 import {
   KartuSorot,
   JudulSeksi,
@@ -13,6 +14,8 @@ import {
   alurTahap,
   tigaUjian,
   halamanTesis,
+  rutePendaftaranTesis,
+  infoPendaftaranTesis,
 } from "../../data/akademik/panduanTesisData";
 
 const viewportSettings = {
@@ -194,6 +197,45 @@ export default function Tesis() {
             <AlurTahap tahap={alurTahap} />
           </motion.div>
         </motion.section>
+
+        {/* Rujukan ke formulir pengajuan & pendaftaran di Panduan Akademik */}
+        <motion.div
+          variants={sectionVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportSettings}
+          className="bg-primary/5 border border-primary/30 rounded-xs p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-6 lg:gap-12"
+        >
+          <div className="flex items-start gap-4 sm:gap-5 flex-1 min-w-0">
+            <div className="text-primary text-2xl sm:text-3xl mt-0.5 shrink-0">
+              <FiLock />
+            </div>
+
+            <div className="space-y-2 flex-1 min-w-0 max-w-2xl">
+              <h2 className="font-heading font-bold text-base sm:text-[18px] text-heading leading-snug">
+                {t(infoPendaftaranTesis.judul)}
+              </h2>
+              <p className="text-xs sm:text-sm text-body leading-relaxed">
+                {t(infoPendaftaranTesis.keterangan)}
+              </p>
+            </div>
+          </div>
+
+          <div className="shrink-0 flex items-center self-start sm:self-center pl-10 sm:pl-0">
+            <motion.div
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <Link
+                to={rutePendaftaranTesis}
+                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-primary bg-primary text-white hover:bg-primary/90 rounded-xs text-xs sm:text-sm font-semibold transition-colors"
+              >
+                <span>{t(infoPendaftaranTesis.tombol)}</span>
+                <FiArrowRight className="text-base" />
+              </Link>
+            </motion.div>
+          </div>
+        </motion.div>
 
         {/* Tiga jenis ujian */}
         <motion.section

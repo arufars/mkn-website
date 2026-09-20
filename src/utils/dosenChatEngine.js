@@ -1,3 +1,5 @@
+import { pick } from "../i18n/languageContext";
+
 
 /** Kelompok kata kunci per topik, mencakup Indonesia dan Inggris. */
 const TOPIK = [
@@ -57,8 +59,8 @@ export function jawabSebagaiDosen(dosen, pertanyaan) {
   switch (topik) {
     case "penelitian":
       return [
-        `Fokus keilmuan saya ada di ${dosen.expertise}.`,
-        dosen.bio,
+        `Fokus keilmuan saya ada di ${pick(dosen.expertise, "id")}.`,
+        pick(dosen.bio, "id"),
       ]
         .filter(Boolean)
         .join("\n\n");
@@ -119,8 +121,8 @@ export function jawabSebagaiDosen(dosen, pertanyaan) {
 
     case "profil":
       return [
-        `Saya ${dosen.name}, ${dosen.title} di Program Studi Magister Kenotariatan UNISSULA.`,
-        dosen.bio,
+        `Saya ${dosen.name}, ${pick(dosen.title, "id")} di Program Studi Magister Kenotariatan UNISSULA.`,
+        pick(dosen.bio, "id"),
       ]
         .filter(Boolean)
         .join("\n\n");

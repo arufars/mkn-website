@@ -1,4 +1,7 @@
 import imgIMANU4 from "../assets/images/imanu-kegiatan.jpeg";
+import fotoMubes1 from "../assets/images/imanu-1.jpg";
+import fotoMubes2 from "../assets/images/imanu-4.jpg";
+import fotoPohon from "../assets/images/pohon.jpg";
 
 export const studentOrganizationsData = [
   {
@@ -282,22 +285,22 @@ export const studentOrganizationsData = [
     ],
 
     /**
-     * Galeri foto kegiatan, dipisah per kegiatan.
-     * Foto dibaca otomatis dari subfolder assets/images/prestasi/<folder>/
-     * menggunakan import.meta.glob di komponen StudentOrganizationDetail.
+     * Galeri foto kegiatan, dipisah per kegiatan. Foto diimpor langsung di
+     * atas; `tahun` boleh dikosongkan bila belum diketahui.
      */
     galeri: [
       {
-        judul: { id: "Lomba Kenotariatan Nasional", en: "National Notarial Competition" },
-        tahun: "2022",
-        folder: "Lomba Nasional 2022",
+        id: "musyawarah-besar",
+        judul: { id: "Musyawarah Besar", en: "Grand Assembly (Musyawarah Besar)" },
+        tahun: "",
+        foto: [fotoMubes1, fotoMubes2],
       },
       {
-        judul: { id: "Juara 3 Debat Hukum Nasional", en: "3rd Place National Legal Debate" },
-        tahun: "2022",
-        folder: "Juara 3 Debat 2022",
+        id: "penanaman-pohon",
+        judul: { id: "Penanaman Pohon", en: "Tree Planting" },
+        tahun: "",
+        foto: [fotoPohon],
       },
-      // Subfolder lain akan ditambahkan otomatis atau sesuai data yang tersedia
     ],
 
     summary: [

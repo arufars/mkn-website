@@ -196,7 +196,7 @@ function TampilanBaru() {
           </motion.h1>
         </motion.div>
 
-        <motion.hr variants={lineVariants} className="border-t border-gray-800 my-4" />
+        <motion.div variants={lineVariants} className="w-full h-[2px] bg-primary my-4" />
 
         <motion.p
           variants={itemVariants}
@@ -251,6 +251,7 @@ function TampilanBaru() {
               en: "Three Prerequisites Before Applying",
             })}
           </motion.h2>
+          <motion.div variants={lineVariants} className="w-full h-[1.5px] bg-heading -mt-2" />
 
           <div className="space-y-4">
             {prasyarat.map((p, idx) => (
@@ -313,6 +314,7 @@ function TampilanBaru() {
               en: "Eight Requirements for Appointment",
             })}
           </motion.h2>
+          <motion.div variants={lineVariants} className="w-full h-[1.5px] bg-heading -mt-2" />
           <motion.p
             variants={itemVariants}
             className="text-xs sm:text-sm text-body leading-relaxed text-justify hyphens-auto max-w-4xl"
@@ -359,6 +361,7 @@ function TampilanBaru() {
               en: "Attached Documents",
             })}
           </motion.h2>
+          <motion.div variants={lineVariants} className="w-full h-[1.5px] bg-heading -mt-2" />
 
           <div className="space-y-4">
             {dokumenKelompok.map((k, idx) => (
@@ -414,6 +417,7 @@ function TampilanBaru() {
               en: "Online Registration Steps",
             })}
           </motion.h2>
+          <motion.div variants={lineVariants} className="w-full h-[1.5px] bg-heading -mt-2" />
           <motion.p
             variants={itemVariants}
             className="text-xs sm:text-sm text-body leading-relaxed text-justify hyphens-auto max-w-4xl"
@@ -466,6 +470,7 @@ function TampilanBaru() {
               en: "Transfer of Notary Office Region",
             })}
           </motion.h2>
+          <motion.div variants={lineVariants} className="w-full h-[1.5px] bg-heading -mt-2" />
 
           <motion.div
             variants={cardVariants}
@@ -516,6 +521,7 @@ function TampilanBaru() {
           >
             {t({ id: "Biaya", en: "Fees" })}
           </motion.h2>
+          <motion.div variants={lineVariants} className="w-full h-[1.5px] bg-heading -mt-2" />
 
           <motion.div
             variants={cardVariants}
@@ -567,6 +573,7 @@ function TampilanBaru() {
           >
             {t({ id: "Dasar Hukum", en: "Legal Basis" })}
           </motion.h2>
+          <motion.div variants={lineVariants} className="w-full h-[1.5px] bg-heading -mt-2" />
 
           <ol className="space-y-2.5">
             {dasarHukum.map((d, idx) => (
@@ -685,7 +692,7 @@ function TampilanLama() {
             </motion.p>
           </motion.div>
 
-          <motion.hr variants={lineVariants} className="border-t border-gray-800 my-4" />
+          <motion.div variants={lineVariants} className="w-full h-[2px] bg-primary my-4" />
         </motion.div>
 
         {/* Featured Listings */}

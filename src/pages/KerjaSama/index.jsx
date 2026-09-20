@@ -30,17 +30,17 @@ const lineVariants = {
 };
 
 /**
- * Baca foto dari subfolder assets/images/kerja-sama/<folder>/
+ * Baca foto dari subfolder assets/images/kerjasama/<folder>/
  * Tambahkan subfolder baru di sana, lalu daftarkan di kerjaSamaGaleri.
  */
 const berkasKerjaSama = import.meta.glob(
-  "../../assets/images/kerja-sama/*/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG}",
+  "../../assets/images/kerjasama/*/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG}",
   { eager: true, import: "default" }
 );
 
 function fotoKegiatan(folder) {
   return Object.entries(berkasKerjaSama)
-    .filter(([path]) => path.includes(`/kerja-sama/${folder}/`))
+    .filter(([path]) => path.includes(`/kerjasama/${folder}/`))
     .sort(([a], [b]) => a.localeCompare(b, "id", { numeric: true }))
     .map(([, url]) => url);
 }
@@ -51,8 +51,38 @@ function fotoKegiatan(folder) {
  * Format: { judul: { id, en }, tahun: "YYYY", folder: "nama-subfolder" }
  */
 const kerjaSamaGaleri = [
-  // Contoh — uncomment & ganti setelah foto tersedia:
-  // { judul: { id: "MOU dengan Universitas X", en: "MOU with University X" }, tahun: "2024", folder: "mou-univ-x-2024" },
+  {
+    judul: {
+      id: "Kerja Sama dengan Pengurus Pusat Ikatan Notaris Indonesia (PP INI)",
+      en: "Partnership with the Central Board of the Indonesian Notary Association (PP INI)",
+    },
+    tahun: "",
+    folder: "mou-ini",
+  },
+  {
+    judul: {
+      id: "Kerja Sama dengan Pengurus Pusat Ikatan Pejabat Pembuat Akta Tanah (PP IPPAT)",
+      en: "Partnership with the Central Board of the Land Deed Officials Association (PP IPPAT)",
+    },
+    tahun: "",
+    folder: "mou-ippat",
+  },
+  {
+    judul: {
+      id: "Kerja Sama dengan Universiti Kebangsaan Malaysia (UKM)",
+      en: "Partnership with Universiti Kebangsaan Malaysia (UKM)",
+    },
+    tahun: "",
+    folder: "mou-ukm",
+  },
+  {
+    judul: {
+      id: "Kerja Sama dengan University of Wollongong Malaysia",
+      en: "Partnership with University of Wollongong Malaysia",
+    },
+    tahun: "",
+    folder: "mou-uow",
+  },
 ];
 
 export default function KerjaSama() {
@@ -66,12 +96,12 @@ export default function KerjaSama() {
   const terdaftar = kerjaSamaGaleri ?? [];
   const folderTerdaftar = new Set(terdaftar.map((k) => k.folder));
 
-  // Auto-discovery: temukan semua subfolder yang ada di assets/images/kerja-sama/
+  // Auto-discovery: temukan semua subfolder yang ada di assets/images/kerjasama/
   const folderDitemukan = Array.from(
     new Set(
       Object.keys(berkasKerjaSama)
         .map((path) => {
-          const match = path.match(/\/kerja-sama\/([^/]+)\//);
+          const match = path.match(/\/kerjasama\/([^/]+)\//);
           return match ? match[1] : null;
         })
         .filter(Boolean)
@@ -143,7 +173,7 @@ export default function KerjaSama() {
             variants={heroContentContainer}
             initial="hidden"
             animate="visible"
-            className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16"
+            className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 lg:pt-16"
           >
             <motion.span
               variants={itemVariants}
@@ -169,7 +199,7 @@ export default function KerjaSama() {
 
             <motion.p
               variants={itemVariants}
-              className="text-sm sm:text-base text-body text-justify leading-relaxed max-w-2xl"
+              className="text-sm sm:text-base text-body text-justify leading-relaxed"
             >
               {t({
                 id:
@@ -207,7 +237,7 @@ export default function KerjaSama() {
               whileInView={{ width: "100%" }}
               transition={{ duration: 0.9, ease: "easeOut" }}
               viewport={{ once: true, amount: 0.2 }}
-              className="h-[2px] bg-primary mt-1 mb-3"
+              className="h-[1.5px] bg-heading mt-1 mb-3"
             />
 
             {galeri.length > 0 ? (
@@ -228,9 +258,12 @@ export default function KerjaSama() {
                     <h3 className="font-heading font-bold text-lg sm:text-xl text-heading leading-snug">
                       {t(kegiatan.judul)}
                     </h3>
-                    <span className="text-[11px] font-bold tracking-wider text-primary uppercase bg-red-50 border border-primary/20 px-2 py-0.5 rounded-xs tabular-nums">
-                      {kegiatan.tahun}
-                    </span>
+                    {/* Lencana tahun hanya tampil bila tahunnya diisi. */}
+                    {kegiatan.tahun && (
+                      <span className="text-[11px] font-bold tracking-wider text-primary uppercase bg-red-50 border border-primary/20 px-2 py-0.5 rounded-xs tabular-nums">
+                        {kegiatan.tahun}
+                      </span>
+                    )}
                     <span className="text-xs text-gray-400 ml-auto tabular-nums">
                       {kegiatan.foto.length} {lang === "en" ? "photos" : "foto"}
                     </span>
@@ -239,7 +272,7 @@ export default function KerjaSama() {
                   <motion.div variants={itemVariants}>
                     <GaleriGeser
                       foto={kegiatan.foto}
-                      ariaLabel={`${t({ id: "Galeri", en: "Gallery" })} ${t(kegiatan.judul)} ${kegiatan.tahun}`}
+                      ariaLabel={`${t({ id: "Galeri", en: "Gallery" })} ${t(kegiatan.judul)} ${kegiatan.tahun}`.trim()}
                       otomatis={false}
                       tampilkanJudul={false}
                       kelasTrek="gap-4"

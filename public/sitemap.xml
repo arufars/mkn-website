@@ -663,7 +663,22 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://mkn.unissula.ac.id/mahasiswa/akomodasi/gym</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mkn.unissula.ac.id/mahasiswa/akomodasi/kantin</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://mkn.unissula.ac.id/mahasiswa/akomodasi/klinik</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mkn.unissula.ac.id/mahasiswa/akomodasi/lapangan-basket</loc>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -674,11 +689,6 @@
   </url>
   <url>
     <loc>https://mkn.unissula.ac.id/mahasiswa/akomodasi/mini-market</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mkn.unissula.ac.id/mahasiswa/akomodasi/pujasera</loc>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>

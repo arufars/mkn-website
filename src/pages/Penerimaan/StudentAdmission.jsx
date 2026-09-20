@@ -5,8 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { admissionRequirements, formulirPendaftaranUrl } from "../../data/penerimaanData";
 import Img from "../../components/ui/Img";
 import { useT, useLanguage } from "../../i18n/languageContext";
-import fotoPmb from "../../assets/images/foto-pmb.jpeg";
-import { biayaKelas } from "../../data/biayaPMBData";
+import fotoPmb from "../../assets/images/pmb-1.png";
+import { biayaKelas, periodePMB } from "../../data/biayaPMBData";
+
+/** Nominal biaya disimpan sebagai angka; pemisah ribuan mengikuti bahasa. */
+const formatAngka = (nilai, lang) => nilai.toLocaleString(lang === "en" ? "en-US" : "id-ID");
+const formatRupiah = (nilai, lang) =>
+  `${lang === "en" ? "IDR" : "Rp"} ${formatAngka(nilai, lang)}`;
 
 const viewportSettings = {
   once: true,
@@ -118,7 +123,7 @@ export default function StudentAdmission() {
           </motion.div>
 
           {/* Horizontal Divider */}
-          <motion.hr variants={lineVariants} className="border-t border-gray-800 my-4" />
+          <motion.div variants={lineVariants} className="w-full h-[2px] bg-primary my-4" />
 
           {/* Description */}
           <motion.p variants={itemVariants} className="text-sm sm:text-base text-body text-justify leading-relaxed">
@@ -131,7 +136,7 @@ export default function StudentAdmission() {
           {/* Hero Banner Image */}
           <motion.div
             variants={itemVariants}
-            className="w-full aspect-[21/9] sm:aspect-[16/7] rounded-xs overflow-hidden bg-gray-100 shadow-2xs"
+            className="w-full aspect-[21/11] sm:aspect-[16/9] rounded-xs overflow-hidden bg-gray-100 shadow-2xs"
           >
             <Img
               src={fotoPmb}
@@ -187,7 +192,7 @@ export default function StudentAdmission() {
         >
           <motion.h2
             variants={itemVariants}
-            className="text-2xl sm:text-3xl font-heading font-bold text-heading tracking-normal"
+            className="text-2xl sm:text-3xl font-heading font-bold text-heading tracking-normal pb-2 border-b-2 border-heading"
           >
             {t({ id: "Biaya Pendidikan", en: "Tuition Fees" })}
           </motion.h2>
@@ -199,10 +204,25 @@ export default function StudentAdmission() {
             })}
           </motion.p>
 
-          {/* 3 Kartu Kelas */}
+          {/* Periode dan gelombang pendaftaran — menentukan besaran SPI. */}
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-wrap items-baseline gap-x-5 gap-y-1.5 text-xs sm:text-sm"
+          >
+            <span className="font-semibold text-heading">{t(periodePMB.judul)}</span>
+            {periodePMB.gelombang.map((gel) => (
+              <span key={gel.label.id} className="text-body">
+                <span className="font-semibold text-primary">{t(gel.label)}:</span>{" "}
+                {t(gel.waktu)}
+              </span>
+            ))}
+          </motion.div>
+
+          {/* Kartu per kelas. Konten utama berdampingan dengan sidebar mulai lg,
+              jadi tiga kolom baru cukup lebar di xl. */}
           <motion.div
             variants={listContainerVariants}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start"
           >
             {biayaKelas.map((kelas) => (
               <motion.div
@@ -234,15 +254,81 @@ export default function StudentAdmission() {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs font-semibold text-primary text-right shrink-0">
-                        {t(item.nilai)}
+                      <span className="text-xs font-semibold text-primary text-right shrink-0 tabular-nums">
+                        {formatRupiah(item.nilai, lang)}
                       </span>
                     </div>
                   ))}
                 </div>
+
+                {kelas.catatan && (
+                  <p className="text-[11px] leading-relaxed text-primary bg-primary/5 border border-primary/15 rounded-xs px-3 py-2">
+                    {t(kelas.catatan)}
+                  </p>
+                )}
+
+                {/* Rincian angsuran dilipat agar kartu tetap ringkas. */}
+                {kelas.angsuran && (
+                  <details className="group border-t border-gray-100 pt-3">
+                    <summary className="flex items-center justify-between gap-2 cursor-pointer list-none text-xs font-semibold text-heading hover:text-primary transition-colors">
+                      <span>{t({ id: "Rincian angsuran", en: "Instalment schedule" })}</span>
+                      <FiChevronDown className="shrink-0 transition-transform duration-200 group-open:rotate-180" />
+                    </summary>
+
+                    <div className="mt-3 overflow-x-auto">
+                      <table className="w-full text-[11px] text-body border-collapse">
+                        <thead>
+                          <tr className="text-left text-heading border-b border-gray-200">
+                            <th className="py-1.5 pr-2 font-semibold">
+                              {t({ id: "Biaya (Rp)", en: "Fee (IDR)" })}
+                            </th>
+                            <th className="py-1.5 px-1 font-semibold text-right whitespace-nowrap">
+                              {t({ id: "Gel. 1", en: "Wave 1" })}
+                            </th>
+                            <th className="py-1.5 pl-1 font-semibold text-right whitespace-nowrap">
+                              {t({ id: "Gel. 2", en: "Wave 2" })}
+                            </th>
+                          </tr>
+                        </thead>
+                        {kelas.angsuran.map((kelompok) => (
+                          <tbody key={kelompok.semester} className="border-b border-gray-100 last:border-b-0">
+                            {kelompok.semester !== "-" && (
+                              <tr>
+                                <th
+                                  colSpan={3}
+                                  className="pt-2.5 pb-0.5 text-left text-[10px] font-bold tracking-wider uppercase text-primary"
+                                >
+                                  Semester {kelompok.semester}
+                                </th>
+                              </tr>
+                            )}
+                            {kelompok.baris.map((baris, idx) => (
+                              <tr key={idx} className="align-top">
+                                <td className="py-1.5 pr-2">
+                                  <span className="block text-heading">{t(baris.biaya)}</span>
+                                  <span className="block text-body/60">{t(baris.waktu)}</span>
+                                </td>
+                                <td className="py-1.5 px-1 text-right tabular-nums whitespace-nowrap">
+                                  {formatAngka(baris.gel1, lang)}
+                                </td>
+                                <td className="py-1.5 pl-1 text-right tabular-nums whitespace-nowrap">
+                                  {formatAngka(baris.gel2, lang)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        ))}
+                      </table>
+                    </div>
+                  </details>
+                )}
               </motion.div>
             ))}
           </motion.div>
+
+          <motion.p variants={itemVariants} className="text-xs sm:text-sm italic text-body/80">
+            {t(periodePMB.catatan)}
+          </motion.p>
         </motion.section>
 
         {/* Section Header & Accordion */}
@@ -255,7 +341,7 @@ export default function StudentAdmission() {
         >
           <motion.h2
             variants={itemVariants}
-            className="text-2xl sm:text-3xl font-heading font-bold text-heading tracking-normal"
+            className="text-2xl sm:text-3xl font-heading font-bold text-heading tracking-normal pb-2 border-b-2 border-heading"
           >
             {t({
               id: "Persyaratan & Prosedur Pendaftaran",

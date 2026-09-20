@@ -8,6 +8,9 @@ import { useLightbox } from "./Lightbox";
 /** Jeda geser otomatis galeri, dalam milidetik. */
 const JEDA_GESER = 4000;
 
+/** Jumlah titik halaman paling banyak yang tampil sekaligus; selebihnya titik bergeser. */
+const MAKS_TITIK = 7;
+
 const trekVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -231,25 +234,51 @@ export default function GaleriGeser({
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             aria-label="Foto sebelumnya"
-            className="w-10 h-10 flex items-center justify-center border border-gray-300 text-heading hover:border-primary hover:bg-primary hover:text-white rounded-xs transition-colors cursor-pointer"
+            className="shrink-0 w-10 h-10 flex items-center justify-center border border-gray-300 text-heading hover:border-primary hover:bg-primary hover:text-white rounded-xs transition-colors cursor-pointer"
           >
             <FiChevronLeft className="text-lg" />
           </motion.button>
 
+          {/* Titik bergeser: paling banyak MAKS_TITIK titik yang tampil, dan
+              jendelanya mengikuti halaman aktif. Dengan begitu lebar deretan
+              titik tetap, sehingga galeri berisi banyak foto (mis. satu foto
+              per halaman di ponsel) tidak mendorong tombol panah keluar layar.
+              Titik di ujung jendela dikecilkan bila masih ada halaman di luarnya. */}
           <div className="flex items-center gap-2.5">
-            {Array.from({ length: posisi.jumlah }, (_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => keHalaman(i)}
-                aria-label={`Halaman galeri ${i + 1} dari ${posisi.jumlah}`}
-                aria-current={i === posisi.indeks ? "true" : undefined}
-                className={clsx(
-                  "h-1.5 rounded-full transition-all duration-300 cursor-pointer",
-                  i === posisi.indeks ? "w-8 bg-primary" : "w-3 bg-gray-300 hover:bg-gray-400"
-                )}
-              />
-            ))}
+            {(() => {
+              const { indeks, jumlah } = posisi;
+              const tampil = Math.min(jumlah, MAKS_TITIK);
+              const awal = Math.min(
+                Math.max(indeks - Math.floor(tampil / 2), 0),
+                jumlah - tampil
+              );
+              const akhir = awal + tampil - 1;
+
+              return Array.from({ length: tampil }, (_, n) => {
+                const i = awal + n;
+                const aktif = i === indeks;
+                const ujungBerlanjut =
+                  !aktif && ((i === awal && awal > 0) || (i === akhir && akhir < jumlah - 1));
+
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => keHalaman(i)}
+                    aria-label={`Halaman galeri ${i + 1} dari ${jumlah}`}
+                    aria-current={aktif ? "true" : undefined}
+                    className={clsx(
+                      "h-1.5 rounded-full transition-all duration-300 cursor-pointer",
+                      aktif
+                        ? "w-8 bg-primary"
+                        : ujungBerlanjut
+                          ? "w-1.5 bg-gray-300 hover:bg-gray-400"
+                          : "w-3 bg-gray-300 hover:bg-gray-400"
+                    )}
+                  />
+                );
+              });
+            })()}
           </div>
 
           <motion.button
@@ -258,7 +287,7 @@ export default function GaleriGeser({
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             aria-label="Foto berikutnya"
-            className="w-10 h-10 flex items-center justify-center border border-gray-300 text-heading hover:border-primary hover:bg-primary hover:text-white rounded-xs transition-colors cursor-pointer"
+            className="shrink-0 w-10 h-10 flex items-center justify-center border border-gray-300 text-heading hover:border-primary hover:bg-primary hover:text-white rounded-xs transition-colors cursor-pointer"
           >
             <FiChevronRight className="text-lg" />
           </motion.button>

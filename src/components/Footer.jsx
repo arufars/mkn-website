@@ -13,6 +13,7 @@ import logoUnissula from "../assets/images/logo-unissula-crest.png";
 import Img from "./ui/Img";
 import { useT } from "../i18n/languageContext";
 import { useUi } from "../i18n/useUi";
+import { navLinks } from "../data/navLinks";
 
 /** Akun media sosial resmi Program Studi Magister Kenotariatan UNISSULA. */
 const socialLinks = [
@@ -57,75 +58,120 @@ const deskripsiProdi = {
   en: "Producing professional, highly ethical, and globally competitive notaries through comprehensive legal education.",
 };
 
-/** Tautan ringkas pada bar bawah, di samping teks hak cipta. */
-const bottomLinks = [
-  { name: { id: "Pengaduan & Bantuan", en: "Complaints & Support" }, href: "/layanan-pengaduan" },
-  { name: { id: "Pusat Unduhan", en: "Download Center" }, href: "/download" },
-  { name: { id: "Agenda & Event", en: "Events & Agenda" }, href: "/event" },
-];
+/**
+ * Judul menu dari navLinks, dipetakan per alamat.
+ *
+ * Footer hanya memilih alamat; namanya diambil dari navbar supaya keduanya tidak
+ * pernah berbeda. Anak ditulis setelah induknya, sehingga alamat yang dipakai
+ * bersama (mis. /quality-assurance) memakai judul menu anaknya.
+ */
+const judulMenu = {};
+(function petakan(butir) {
+  for (const item of butir) {
+    judulMenu[item.href] = item.title;
+    if (item.children) petakan(item.children);
+  }
+})(navLinks);
 
+/**
+ * Menu utama navbar ditulis kapital ("KERJA SAMA"); di footer dipakai versi
+ * huruf biasanya.
+ */
+const namaKhusus = {
+  "/berita": { id: "Berita", en: "News" },
+  "/kerja-sama": { id: "Kerja Sama", en: "Partnerships" },
+  "/event": { id: "Agenda", en: "Events" },
+  "/download": { id: "Unduhan", en: "Download" },
+  "/layanan-pengaduan": { id: "Layanan Pengaduan", en: "Complaint Service" },
+};
+
+/** Mengubah daftar alamat menjadi tautan bernama. */
+function keTautan(hrefs) {
+  return hrefs.map((href) => {
+    const name = namaKhusus[href] ?? judulMenu[href];
+    if (!name && import.meta.env.DEV) {
+      console.warn(`[Footer] ${href} tidak ada di navLinks — perbarui daftar footer.`);
+    }
+    return { href, name: name ?? { id: href, en: href } };
+  });
+}
+
+/** Tautan ringkas pada bar bawah, di samping teks hak cipta. */
+const bottomLinks = keTautan(["/layanan-pengaduan", "/download"]);
+
+/**
+ * Kelompok navigasi footer — pilihan halaman yang paling sering dicari, bukan
+ * salinan lengkap navbar. Setiap menu utama navbar terwakili, dan tiap alamat
+ * hanya muncul sekali (termasuk bar bawah).
+ */
 const footerSections = [
   {
     title: { id: "PROFIL", en: "PROFILE" },
-    links: [
-      { name: { id: "Sejarah / Latar Belakang", en: "History / Background" }, href: "/profil/sejarah" },
-      { name: { id: "Visi dan Misi", en: "Vision & Mission" }, href: "/profil/visi-misi" },
-      { name: { id: "Tujuan (PEO)", en: "Educational Objectives (PEO)" }, href: "/profil/tujuan" },
-      { name: { id: "Struktur Organisasi", en: "Organisational Structure" }, href: "/profil/struktur-organisasi" },
-      { name: { id: "Berita & Wawasan", en: "News & Insights" }, href: "/berita" },
-    ],
+    links: keTautan([
+      "/profil/sejarah",
+      "/profil/visi-misi",
+      "/profil/tujuan",
+      "/profil/struktur-organisasi",
+      "/berita",
+      "/kerja-sama",
+    ]),
   },
   {
     title: { id: "AKADEMIK", en: "ACADEMIC" },
-    links: [
-      { name: { id: "Profil Lulusan", en: "Graduate Profiles" }, href: "/akademik/profil-lulusan" },
-      { name: { id: "Capaian Pembelajaran", en: "Intended Learning Outcomes" }, href: "/akademik/capaian-pembelajaran" },
-      { name: { id: "Kurikulum", en: "Curriculum" }, href: "/akademik/kurikulum" },
-      { name: { id: "Panduan Evaluasi", en: "Learning Evaluation Guidelines" }, href: "/akademik/panduan-evaluasi" },
-      { name: { id: "Panduan Ujian", en: "Examination Guidelines" }, href: "/akademik/panduan-ujian" },
-    ],
+    links: keTautan([
+      "/akademik/kurikulum",
+      "/akademik/pembelajaran",
+      "/akademik/panduan-akademik",
+      "/akademik/panduan-ujian",
+      "/akademik/kalender",
+      "/akademik/sistem-informasi",
+      "/akademik/perpustakaan",
+    ]),
   },
   {
     title: { id: "MAHASISWA & ALUMNI", en: "STUDENTS & ALUMNI" },
-    links: [
-      { name: { id: "Organisasi Mahasiswa", en: "Student Organisations" }, href: "/mahasiswa/organisasi" },
-      { name: { id: "Akomodasi", en: "Accommodation" }, href: "/mahasiswa/akomodasi" },
-      { name: { id: "Pengaduan & Bantuan", en: "Complaints & Support" }, href: "/layanan-pengaduan" },
-      { name: { id: "Penelusuran Alumni", en: "Tracer Study" }, href: "/alumni/tracer-study" },
-      { name: { id: "Pusat Karir", en: "Career Center" }, href: "/alumni/pusat-karir" },
-      { name: { id: "Lowongan Pekerjaan", en: "Job Vacancies" }, href: "/alumni/lowongan" },
-    ],
+    links: keTautan([
+      "/mahasiswa/organisasi",
+      "/mahasiswa/prestasi",
+      "/mahasiswa/akomodasi",
+      "/alumni/ikanotsula",
+      "/alumni/tracer-study",
+      "/alumni/pusat-karir",
+      "/alumni/lowongan",
+    ]),
   },
   {
     title: { id: "INFORMASI", en: "INFORMATION" },
-    links: [
-      { name: { id: "Penerimaan Mahasiswa", en: "Student Admissions" }, href: "/informasi/penerimaan-mahasiswa" },
-      { name: { id: "Agenda & Event", en: "Events & Agenda" }, href: "/event" },
-      { name: { id: "Tingkat Kelulusan", en: "Graduation Rate" }, href: "/informasi/tingkat-kelulusan" },
-      { name: { id: "Penelitian Dosen", en: "Lecturer Research" }, href: "/informasi/penelitian-dosen" },
-      { name: { id: "Pengabdian Dosen", en: "Community Service" }, href: "/informasi/pengabdian-dosen" },
-    ],
+    links: keTautan([
+      "/informasi/penerimaan-mahasiswa",
+      "/informasi/tingkat-kelulusan",
+      "/informasi/penelitian-dosen",
+      "/informasi/pengabdian-dosen",
+      "/event",
+    ]),
   },
   {
     title: { id: "STAF & FASILITAS", en: "STAFF & FACILITIES" },
-    links: [
-      { name: { id: "Dosen", en: "Faculty Members" }, href: "/staff/dosen" },
-      { name: { id: "Tenaga Kependidikan", en: "Administrative Staff" }, href: "/staff/tendik" },
-      { name: { id: "Ruang Kelas", en: "Classrooms" }, href: "/fasilitas/ruang-kelas" },
-      { name: { id: "Laboratorium", en: "Laboratories" }, href: "/fasilitas/laboratorium" },
-      { name: { id: "Perpustakaan", en: "Library" }, href: "/fasilitas/perpustakaan" },
-    ],
+    links: keTautan([
+      "/staff/dosen",
+      "/staff/tendik",
+      "/fasilitas/ruang-kelas",
+      "/fasilitas/laboratorium-akta",
+      "/fasilitas/laboratorium-manajemen-kantor",
+      "/fasilitas/student-research-center",
+      "/fasilitas/perpustakaan",
+    ]),
   },
   {
     title: { id: "PENJAMINAN MUTU", en: "QUALITY ASSURANCE" },
-    links: [
-      { name: { id: "Gugus Penjaminan Mutu", en: "Quality Assurance Unit" }, href: "/quality-assurance" },
-      { name: { id: "Dokumen Mutu", en: "QA Documents" }, href: "/quality-assurance/qa-documents" },
-      { name: { id: "Laporan Audit Internal", en: "Internal Audit Report" }, href: "/quality-assurance/internal-audit-report" },
-      { name: { id: "Laporan Pembelajaran", en: "Teaching & Learning Report" }, href: "/quality-assurance/learning-teaching-report" },
-      { name: { id: "Survei Mahasiswa", en: "Student Survey Report" }, href: "/quality-assurance/student-survey-report" },
-      { name: { id: "Pusat Unduhan", en: "Download Center" }, href: "/download" },
-    ],
+    links: keTautan([
+      "/quality-assurance",
+      "/quality-assurance/qa-documents",
+      "/quality-assurance/internal-audit-report",
+      "/quality-assurance/learning-teaching-report",
+      "/quality-assurance/student-survey-report",
+      "/quality-assurance/alumni-survey-report",
+    ]),
   },
 ];
 
@@ -228,8 +274,8 @@ export default function Footer() {
                   {t(section.title)}
                 </h2>
                 <ul className="space-y-2">
-                  {section.links.map((link, lIdx) => (
-                    <li key={lIdx}>
+                  {section.links.map((link) => (
+                    <li key={link.href}>
                       <Link
                         to={link.href}
                         className="group inline-flex items-baseline gap-2 text-[12.5px] leading-snug text-body hover:text-primary transition-colors duration-150"
@@ -257,8 +303,8 @@ export default function Footer() {
               © {new Date().getFullYear()} Magister Kenotariatan UNISSULA. {ui("allRightsReserved")}
             </p>
             <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
-              {bottomLinks.map((link, bIdx) => (
-                <li key={bIdx}>
+              {bottomLinks.map((link) => (
+                <li key={link.href}>
                   <Link
                     to={link.href}
                     className="hover:text-white transition-colors duration-150"

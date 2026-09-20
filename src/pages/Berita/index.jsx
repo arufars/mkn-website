@@ -638,7 +638,7 @@ export default function BeritaIndex() {
               ref={newsSectionRef}
               className="space-y-6 pt-4 scroll-mt-20"
             >
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-heading pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b-2 border-heading pb-3">
                 <h2 className="font-heading font-normal text-3xl sm:text-4xl text-heading tracking-normal">
                   {t(halaman.beritaLainnya)}
                 </h2>
@@ -787,7 +787,7 @@ export default function BeritaIndex() {
             <section className="space-y-6">
               {/* HEADER */}
 
-              <div className="border-b border-heading pb-3 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+              <div className="border-b-2 border-heading pb-3 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
                 <div>
                   <h2 className="font-heading font-normal text-3xl sm:text-4xl text-heading tracking-normal">
                     {t(halaman.judulPengumuman)}

@@ -307,7 +307,7 @@ export default function FacultyDetail() {
                 >
                   <motion.h2
                     variants={itemVariants}
-                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight"
+                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight pb-2 border-b-2 border-heading"
                   >
                     {t({ id: "Mata Kuliah yang Diampu", en: "Courses Taught" })}
                   </motion.h2>
@@ -398,7 +398,7 @@ export default function FacultyDetail() {
                 >
                   <motion.h2
                     variants={itemVariants}
-                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight"
+                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight pb-2 border-b-2 border-heading"
                   >
                     {t({ id: "Pengalaman Penelitian", en: "Research Experience" })}
                   </motion.h2>
@@ -453,7 +453,7 @@ export default function FacultyDetail() {
                 >
                   <motion.h2
                     variants={itemVariants}
-                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight"
+                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight pb-2 border-b-2 border-heading"
                   >
                     {t({ id: "Pengabdian dan Penugasan", en: "Community Service and Assignments" })}
                   </motion.h2>
@@ -503,7 +503,7 @@ export default function FacultyDetail() {
                 >
                   <motion.h2
                     variants={itemVariants}
-                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight"
+                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight pb-2 border-b-2 border-heading"
                   >
                     {t({ id: "Pemakalah Seminar Ilmiah (Oral Presentation)", en: "Scientific Seminar Presenter (Oral Presentation)" })}
                   </motion.h2>
@@ -554,7 +554,7 @@ export default function FacultyDetail() {
                 >
                   <motion.h2
                     variants={itemVariants}
-                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight"
+                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight pb-2 border-b-2 border-heading"
                   >
                     {t({ id: "Karya Buku", en: "Book Publications" })}
                   </motion.h2>
@@ -609,7 +609,7 @@ export default function FacultyDetail() {
                 >
                   <motion.h2
                     variants={itemVariants}
-                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight"
+                    className="text-2xl sm:text-3xl font-heading font-normal text-heading tracking-tight pb-2 border-b-2 border-heading"
                   >
                     {t({ id: "Perolehan HKI (Hak Kekayaan Intelektual)", en: "Intellectual Property Rights (IPR)" })}
                   </motion.h2>

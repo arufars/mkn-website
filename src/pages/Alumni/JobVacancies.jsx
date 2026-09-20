@@ -241,7 +241,7 @@ export default function JobVacancies() {
             </motion.h1>
           </div>
 
-          <motion.div variants={lineVariants} className="w-full h-[1px] bg-gray-800 my-4" />
+          <motion.div variants={lineVariants} className="w-full h-[2px] bg-primary my-4" />
 
           <motion.p
             variants={itemVariants}
@@ -317,7 +317,7 @@ export default function JobVacancies() {
             </motion.p>
           </motion.div>
 
-          <motion.div variants={lineVariants} className="w-full h-[1px] bg-gray-800 my-4" />
+          <motion.div variants={lineVariants} className="w-full h-[2px] bg-primary my-4" />
 
           {/* Search & Filter Bar */}
           <motion.div

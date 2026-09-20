@@ -5,7 +5,7 @@ import { FiSearch, FiChevronDown, FiUser } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { facultyData } from "../../data/facultyData";
 import Img from "../../components/ui/Img";
-import { useT, useLanguage } from "../../i18n/languageContext";
+import { useT, useLanguage, pick } from "../../i18n/languageContext";
 
 /**
  * Urutan tampil daftar dosen: jenjang jabatan akademik dari yang tertinggi,
@@ -44,13 +44,20 @@ const PIMPINAN = [
 /** Tanpa jabatan struktural — diurutkan sesudah yang menjabat. */
 const TANPA_JABATAN = 99;
 
+/**
+ * `title` dan `bio` sebagian dosen sudah berbentuk { id, en }, sebagian masih
+ * string. Pengurutan selalu memakai teks Indonesia agar urutannya tidak
+ * berubah saat bahasa diganti.
+ */
+const jabatanId = (dosen) => pick(dosen.title, "id") || "";
+
 function peringkatPimpinan(dosen) {
-    const jabatan = PIMPINAN.find((j) => j.cocok.test(dosen.title));
+    const jabatan = PIMPINAN.find((j) => j.cocok.test(jabatanId(dosen)));
     return jabatan ? jabatan.peringkat : TANPA_JABATAN;
 }
 
 function peringkatJabatan(dosen) {
-    const jenjang = JENJANG.find((j) => j.cocok.test(dosen.title));
+    const jenjang = JENJANG.find((j) => j.cocok.test(jabatanId(dosen)));
     return jenjang ? jenjang.peringkat : TANPA_JENJANG;
 }
 
@@ -147,18 +154,23 @@ export default function FacultyDirectory() {
     };
 
     const filteredFaculty = useMemo(() => {
+        const kataKunci = appliedFilters.search.toLowerCase();
+        // Cari di kedua bahasa sekaligus, apa pun bahasa yang sedang aktif.
+        const teks = (value) =>
+            [pick(value, "id"), pick(value, "en")].filter(Boolean).join(" ").toLowerCase();
+
         return facultyData.filter((item) => {
             const matchSearch =
-                item.name.toLowerCase().includes(appliedFilters.search.toLowerCase()) ||
-                item.title.toLowerCase().includes(appliedFilters.search.toLowerCase()) ||
-                item.bio.toLowerCase().includes(appliedFilters.search.toLowerCase());
+                teks(item.name).includes(kataKunci) ||
+                teks(item.title).includes(kataKunci) ||
+                teks(item.bio).includes(kataKunci);
 
             const matchExpertise =
                 appliedFilters.expertise === "Semua Keahlian" ||
-                item.expertise === appliedFilters.expertise;
+                pick(item.expertise, "id") === appliedFilters.expertise;
 
             const matchType =
-                appliedFilters.type === "Semua Tipe" || item.type === appliedFilters.type;
+                appliedFilters.type === "Semua Tipe" || pick(item.type, "id") === appliedFilters.type;
 
             return matchSearch && matchExpertise && matchType;
         }).sort(bandingkanDosen);
@@ -359,12 +371,12 @@ export default function FacultyDirectory() {
                                                     {faculty.name}
                                                 </h3>
                                                 <p className="text-xs uppercase tracking-wider text-gray-500 font-medium">
-                                                    {faculty.title}
+                                                    {t(faculty.title)}
                                                 </p>
                                             </div>
 
                                             <p className="text-xs sm:text-sm text-body leading-relaxed mt-4 line-clamp-3">
-                                                {faculty.bio}
+                                                {t(faculty.bio)}
                                             </p>
                                         </div>
                                     </Link>

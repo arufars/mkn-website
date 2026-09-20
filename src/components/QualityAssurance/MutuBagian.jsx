@@ -82,7 +82,10 @@ export function KepalaMutu({ eyebrow = "PENJAMINAN MUTU", judul, pengantar }) {
         className="w-full h-[2px] bg-primary mt-4 mb-5"
       />
       {pengantar && (
-        <motion.p variants={fadeUp} className="text-base text-body leading-relaxed max-w-5xl">
+        <motion.p
+          variants={fadeUp}
+          className="text-sm sm:text-base text-body text-justify leading-relaxed"
+        >
           {t(pengantar)}
         </motion.p>
       )}
@@ -115,12 +118,12 @@ export function JudulMutu({ judul, keterangan }) {
             transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
           },
         }}
-        className="w-full h-[1.5px] bg-heading/80"
+        className="w-full h-[1.5px] bg-heading"
       />
       {keterangan && (
         <motion.p
           variants={fadeUp}
-          className="text-sm sm:text-[15px] text-body leading-relaxed pt-2 max-w-5xl"
+          className="text-sm sm:text-base text-body text-justify leading-relaxed pt-2"
         >
           {t(keterangan)}
         </motion.p>
@@ -341,6 +344,98 @@ export function DaftarNomor({ butir }) {
             {idx + 1}.
           </span>
           <span>{t(b)}</span>
+        </motion.li>
+      ))}
+    </motion.ol>
+  );
+}
+
+/**
+ * Tabel teks sederhana. `kolom`: [{ id, en }] judul kolom; `baris`: larik sel
+ * per baris, tiap sel berupa { id, en }. Sel pertama dicetak tebal.
+ */
+export function TabelMutu({ kolom, baris }) {
+  const t = useT();
+  return (
+    <div className="border border-gray-200 bg-white rounded-xs overflow-x-auto">
+      <table className="w-full text-left border-collapse text-sm">
+        <thead>
+          <tr className="border-b-2 border-heading text-[11px] font-bold tracking-wider uppercase text-heading">
+            {kolom.map((k) => (
+              <th key={k.id} className="py-3 px-3 sm:px-4 align-bottom">
+                {t(k)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {baris.map((sel, idx) => (
+            <tr key={idx}>
+              {sel.map((s, i) => (
+                <td
+                  key={i}
+                  className={`py-3 px-3 sm:px-4 align-top leading-relaxed min-w-40 ${
+                    i === 0 ? "font-medium text-heading" : "text-body"
+                  }`}
+                >
+                  {t(s)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/**
+ * Kartu rencana tindak lanjut hasil survei.
+ * `butir`: [{ temuan, tindakan, penanggungJawab, tenggat }]; bila `tenggat`
+ * null (kosong di laporan), barisnya tidak ditampilkan.
+ */
+export function DaftarTindakLanjut({ butir }) {
+  const t = useT();
+  return (
+    <motion.ol
+      className="space-y-4"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      variants={staggerContainer}
+    >
+      {butir.map((x, idx) => (
+        <motion.li
+          key={x.temuan.id}
+          variants={itemVariant}
+          className="bg-white border border-gray-200 rounded-xs p-5 sm:p-6 shadow-2xs"
+        >
+          <p className="flex gap-3 font-medium text-heading leading-snug">
+            <span className="shrink-0 tabular-nums text-primary">{idx + 1}.</span>
+            <span>{t(x.temuan)}</span>
+          </p>
+          <dl className={`mt-4 grid gap-3 text-sm ${x.tenggat ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+            <div>
+              <dt className="text-xs font-semibold text-heading">
+                {t({ id: "Tindakan", en: "Action" })}
+              </dt>
+              <dd className="mt-0.5 text-body leading-relaxed">{t(x.tindakan)}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-semibold text-heading">
+                {t({ id: "Penanggung jawab", en: "Responsible" })}
+              </dt>
+              <dd className="mt-0.5 text-body leading-relaxed">{t(x.penanggungJawab)}</dd>
+            </div>
+            {x.tenggat && (
+              <div>
+                <dt className="text-xs font-semibold text-heading">
+                  {t({ id: "Tenggat dan indikator", en: "Deadline and indicator" })}
+                </dt>
+                <dd className="mt-0.5 text-body leading-relaxed">{t(x.tenggat)}</dd>
+              </div>
+            )}
+          </dl>
         </motion.li>
       ))}
     </motion.ol>

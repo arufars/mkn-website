@@ -46,7 +46,11 @@ const KHUSUS = {
  * nama lama yang masih dilayani demi tautan luar, tapi tidak perlu diindeks dua
  * kali sebagai isi ganda.
  */
-const DIKECUALIKAN = new Set(["/staff/faculty-directory"]);
+const DIKECUALIKAN = new Set([
+  "/staff/faculty-directory",
+  // Halaman berkata sandi khusus mahasiswa; tidak perlu ditemukan mesin pencari.
+  "/akademik/panduan-akademik/pendaftaran-tesis",
+]);
 
 const bobot = (url) => {
   if (KHUSUS[url]) return KHUSUS[url];

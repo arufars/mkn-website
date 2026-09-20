@@ -79,7 +79,7 @@ function Seksi({ judul, pengantar, children }) {
           whileInView={{ width: "100%" }}
           transition={{ duration: 0.9, ease: "easeOut" }}
           viewport={{ once: true, amount: 0.2 }}
-          className="h-[2px] bg-primary mt-1 mb-3"
+          className="h-[1.5px] bg-heading mt-1 mb-3"
         />
         {pengantar && (
           <p className="text-sm sm:text-base text-body leading-relaxed">{pengantar}</p>
@@ -153,7 +153,7 @@ export default function TracerStudy() {
             </motion.h1>
           </div>
 
-          <motion.div variants={lineVariants} className="w-full h-px bg-gray-800 my-4" />
+          <motion.div variants={lineVariants} className="w-full h-[2px] bg-primary my-4" />
 
           <motion.p
             variants={itemVariants}

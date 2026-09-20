@@ -1,9 +1,11 @@
 import { Fragment } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { FiBookOpen, FiFileText, FiDownload } from "react-icons/fi";
+import { FiBookOpen, FiFileText, FiDownload, FiLock, FiArrowRight } from "react-icons/fi";
 import { useT } from "../../i18n/languageContext";
 import { useUi } from "../../i18n/useUi";
+import { rutePendaftaranTesis } from "../../data/akademik/panduanTesisData";
 
 import pedomanAkademik from "../../assets/pdf/Pedoman Akademik 2021.pdf";
 import pedomanLaboratorium from "../../assets/pdf/Pedoman Praktek Laboratorium Manajemen Kantor Notaris & PPAT.pdf";
@@ -175,6 +177,26 @@ const halaman = {
       en: "Form will be available soon",
     },
   },
+  pendaftaranTesis: {
+    judul: {
+      id: "Pengajuan Judul Tesis & Pendaftaran Ujian",
+      en: "Thesis Title Submission & Examination Registration",
+    },
+    keterangan: {
+      id:
+        "Formulir pengajuan judul tesis serta pendaftaran ujian pra proposal, proposal, " +
+        "dan tesis. Khusus mahasiswa — halaman ini dibuka dengan kata sandi dari bagian " +
+        "akademik.",
+      en:
+        "Forms for thesis title submission and registration for the pre-proposal, " +
+        "proposal, and thesis examinations. Students only — the page is opened with a " +
+        "password from the academic office.",
+    },
+    tombol: {
+      id: "Buka Formulir",
+      en: "Open Forms",
+    },
+  },
 };
 
 /** Satu kartu dokumen pedoman beserta tautan unduhan berkasnya. */
@@ -315,6 +337,75 @@ function PengajuanIzinRiset() {
   );
 }
 
+/**
+ * Jalan masuk formulir pengajuan judul dan pendaftaran ujian tesis.
+ *
+ * Kotaknya sengaja sama dengan kotak izin riset di atasnya; tombolnya aktif
+ * karena menuju halaman berkata sandi yang sudah tersedia.
+ */
+function PendaftaranTesisMasuk() {
+  const t = useT();
+
+  return (
+    <motion.div
+      variants={cardVariants}
+      whileHover={{
+        y: -3,
+        transition: {
+          duration: 0.25,
+        },
+      }}
+      className="bg-primary/5 border border-primary/30 rounded-xs p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-6 lg:gap-12"
+    >
+      <div className="flex items-start gap-4 sm:gap-5 flex-1 min-w-0">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.7 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 0.6,
+            ease: "easeOut",
+          }}
+          viewport={viewportSettings}
+          className="text-primary text-2xl sm:text-3xl mt-0.5 shrink-0"
+        >
+          <FiLock />
+        </motion.div>
+
+        <motion.div
+          variants={contentVariants}
+          className="space-y-2 flex-1 min-w-0 max-w-2xl"
+        >
+          <h2 className="font-heading font-bold text-base sm:text-[18px] text-heading leading-snug">
+            {t(halaman.pendaftaranTesis.judul)}
+          </h2>
+
+          <p className="text-xs sm:text-sm text-body leading-relaxed">
+            {t(halaman.pendaftaranTesis.keterangan)}
+          </p>
+        </motion.div>
+      </div>
+
+      <motion.div
+        variants={contentVariants}
+        className="shrink-0 flex items-center self-start sm:self-center pl-10 sm:pl-0"
+      >
+        <motion.div
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <Link
+            to={rutePendaftaranTesis}
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-primary bg-primary text-white hover:bg-primary/90 rounded-xs text-xs sm:text-sm font-semibold transition-colors"
+          >
+            <span>{t(halaman.pendaftaranTesis.tombol)}</span>
+            <FiArrowRight className="text-base" />
+          </Link>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export default function Panduan() {
   const t = useT();
   const ui = useUi();
@@ -380,7 +471,12 @@ export default function Panduan() {
             <Fragment key={item.id}>
               <KartuPedoman item={item} />
 
-              {item.diikutiFormIzinRiset && <PengajuanIzinRiset />}
+              {item.diikutiFormIzinRiset && (
+                <>
+                  <PengajuanIzinRiset />
+                  <PendaftaranTesisMasuk />
+                </>
+              )}
             </Fragment>
           ))}
         </motion.div>

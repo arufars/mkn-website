@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiMessageSquare, FiX } from "react-icons/fi";
 import { useDosenChat } from "../../../hooks/useDosenChat";
+import { pick } from "../../../i18n/languageContext";
 import {
   DaftarPesan,
   SaranPertanyaan,
@@ -104,7 +105,7 @@ export default function DosenChatDrawer({ dosen }) {
                   <p className="font-heading text-base font-semibold text-heading truncate">
                     {dosen.shortName || dosen.name}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">{dosen.title}</p>
+                  <p className="text-xs text-gray-500 truncate">{pick(dosen.title, "id")}</p>
                 </div>
                 <button
                   type="button"

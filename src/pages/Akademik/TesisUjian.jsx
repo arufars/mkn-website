@@ -49,7 +49,7 @@ export default function TesisUjian() {
                   <FiFileText />
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-heading leading-snug truncate group-hover:text-primary transition-colors">
+                  <p className="text-sm font-medium text-heading leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                     {t(item.judul)}
                   </p>
                   <p className="text-xs text-body mt-0.5">{item.tahun}</p>

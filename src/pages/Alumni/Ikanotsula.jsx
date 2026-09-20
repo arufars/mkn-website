@@ -188,17 +188,17 @@ const ikanotsulaData = {
     },
   ],
   galeri: [
-    { judul: { id: "Bimbingan UKEN", en: "UKEN Guidance" }, tahun: "2022", folder: "bim-uken-2022" },
-    { judul: { id: "Penyuluhan Hukum IKANOTSULA", en: "IKANOTSULA Legal Counseling" }, tahun: "2023", folder: "penyuluhan-hukum-2023" },
-    { judul: { id: "Bimbingan UKEN", en: "UKEN Guidance" }, tahun: "2024", folder: "bim-uken-2024" },
-    { judul: { id: "Jalan Sehat", en: "Fun Walk" }, tahun: "2024", folder: "jalan-sehat-2024" },
-    { judul: { id: "Pelantikan Pengurus IKANOTSULA", en: "Inauguration of IKANOTSULA Board" }, tahun: "2024", folder: "pelantikan-2024" },
-    { judul: { id: "Pengabdian Masyarakat Pekalongan", en: "Pekalongan Community Service" }, tahun: "2024", folder: "pm-pekalongan-2024" },
-    { judul: { id: "Workshop Bimbel Habib Adjie", en: "Habib Adjie Tutoring Workshop" }, tahun: "2024", folder: "workshop-2024" },
-    { judul: { id: "Bimbingan UKEN", en: "UKEN Guidance" }, tahun: "2025", folder: "bimbel-uken-2025" },
-    { judul: { id: "Reuni Milad 62", en: "62nd Anniversary Reunion" }, tahun: "2025", folder: "reuni-2025" },
-    { judul: { id: "Diklat PPAT", en: "PPAT Training & Education" }, tahun: "2026", folder: "diklat-ppat-2026" },
-    { judul: { id: "Halal Bihalal", en: "Halal Bihalal Gathering" }, tahun: "2026", folder: "halal-bihalal-2026" },
+    { judul: "Bimbingan Belajar Ujian Kode Etik Notaris (UKEN)", tahun: "2023", folder: "bim-uken-2022" },
+    { judul: "Penyuluhan Hukum IKANOTSULA", tahun: "2023", folder: "penyuluhan-hukum-2023" },
+    { judul: "Bimbingan Belajar Ujian Kompetensi Notaris", tahun: "2024", folder: "bim-uken-2024" },
+    { judul: "Jalan Sehat dan Silaturahmi", tahun: "2024", folder: "jalan-sehat-2024" },
+    { judul: "Pelantikan Pengurus IKANOTSULA", tahun: "2024", folder: "pelantikan-2024" },
+    { judul: "Pengabdian Masyarakat Pekalongan", tahun: "2024", folder: "pm-pekalongan-2024" },
+    { judul: "Workshop \"Seputar Dunia Kenotariatan\" bersama Dr. Habib Adjie, S.H.,M.Hum", tahun: "2024", folder: "workshop-2024" },
+    { judul: "Bimbingan Belajar Ujian Kompetensi Notaris", tahun: "2025", folder: "bimbel-uken-2025" },
+    { judul: "Dialog Alumni", tahun: "2025", folder: "reuni-2025" },
+    { judul: "Halal Bihalal", tahun: "2026", folder: "halal-bihalal-2026" },
+    { judul: "Diklat Calon PPAT \"Peningkatan Calon PPAT Dalam Rangka Mewujudkan PPAT yang berintegritas Tinggi dan Bertanggung Jawab\"", tahun: "2026", folder: "diklat-ppat-2026" },
   ],
   strukturOrganisasi: {
     dasar: {
@@ -615,7 +615,7 @@ export default function IkanotsulaDetail() {
                 whileInView={{ width: "100%" }}
                 transition={{ duration: 0.9, ease: "easeOut" }}
                 viewport={{ once: true, amount: 0.2 }}
-                className="h-[2px] bg-primary mt-1 mb-3"
+                className="h-[1.5px] bg-heading mt-1 mb-3"
               />
               <p className="text-xs sm:text-sm text-body leading-relaxed">
                 {t(organization.strukturOrganisasi.dasar)}
@@ -785,7 +785,7 @@ export default function IkanotsulaDetail() {
               whileInView={{ width: "100%" }}
               transition={{ duration: 0.9, ease: "easeOut" }}
               viewport={{ once: true, amount: 0.2 }}
-              className="h-[2px] bg-primary mt-1 mb-3"
+              className="h-[1.5px] bg-heading mt-1 mb-3"
             />
             <motion.div
               variants={cardVariants}
@@ -836,7 +836,7 @@ export default function IkanotsulaDetail() {
               whileInView={{ width: "100%" }}
               transition={{ duration: 0.9, ease: "easeOut" }}
               viewport={{ once: true, amount: 0.2 }}
-              className="h-[2px] bg-primary mt-1 mb-3"
+              className="h-[1.5px] bg-heading mt-1 mb-3"
             />
 
             {galeri.map((kegiatan) => (

@@ -15,6 +15,10 @@ const routeTitleMap = {
   "/penerimaan": { id: "Informasi", en: "Information" },
   "/staff/faculty-directory": { id: "Dosen", en: "Academic Staff" },
   "/layanan-pengaduan": { id: "Pengaduan & Bantuan", en: "Support & Grievance" },
+  "/akademik/panduan-akademik/pendaftaran-tesis": {
+    id: "Pendaftaran Tesis",
+    en: "Thesis Registration",
+  },
 };
 
 function buildRouteTitleMap(items) {

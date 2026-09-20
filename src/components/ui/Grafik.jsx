@@ -100,14 +100,17 @@ export function Legenda({ butir }) {
 }
 
 /**
- * Batang mendatar satu seri, berskala 0–100%.
- * `butir`: [{ label, nilai, warna? }] — nilai dalam persen.
+ * Batang mendatar satu seri, berskala 0–`maks` (bawaan 0–100%).
+ * `butir`: [{ label, nilai, warna?, teks? }]. `teks` menggantikan label nilai
+ * bawaan `${nilai}%`, misalnya untuk skor berdesimal pada skala 1–5.
  */
-export function DaftarBatang({ butir }) {
+export function DaftarBatang({ butir, maks = 100 }) {
   return (
     <ul className="space-y-3.5">
       {butir.map((b) => {
         const warna = b.warna ?? WARNA.utama;
+        const lebar = (b.nilai / maks) * 100;
+        const teks = b.teks ?? `${b.nilai}%`;
         return (
           <li
             key={b.label}
@@ -118,10 +121,10 @@ export function DaftarBatang({ butir }) {
             <span className="relative mr-12 block h-3">
               {b.nilai > 0 && (
                 <Petunjuk
-                  nilai={`${b.nilai}%`}
+                  nilai={teks}
                   label={b.label}
                   className="absolute inset-y-0 left-0 block"
-                  style={{ width: `${b.nilai}%` }}
+                  style={{ width: `${lebar}%` }}
                 >
                   <motion.span
                     variants={tumbuh}
@@ -135,9 +138,9 @@ export function DaftarBatang({ butir }) {
               )}
               <span
                 className="absolute top-1/2 -translate-y-1/2 text-sm font-semibold text-heading tabular-nums whitespace-nowrap"
-                style={{ left: b.nilai > 0 ? `calc(${b.nilai}% + 8px)` : 0 }}
+                style={{ left: b.nilai > 0 ? `calc(${lebar}% + 8px)` : 0 }}
               >
-                {b.nilai}%
+                {teks}
               </span>
             </span>
           </li>

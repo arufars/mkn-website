@@ -22,19 +22,26 @@ const akomodasiTabs = [
     label: { id: "GUEST HOUSE", en: "GUEST HOUSE" },
     path: "/mahasiswa/akomodasi/guest-house",
   },
-  // Fasilitas pendukung kampus. Isinya belum diterima dari program studi, jadi
-  // halamannya sementara hanya menampilkan keterangan "segera tersedia".
+  // Fasilitas pendukung kampus.
   {
     label: { id: "SPORT CENTER", en: "SPORT CENTER" },
     path: "/mahasiswa/akomodasi/sport-center",
+  },
+  {
+    label: { id: "GYM", en: "GYM" },
+    path: "/mahasiswa/akomodasi/gym",
+  },
+  {
+    label: { id: "LAPANGAN BASKET", en: "BASKETBALL COURT" },
+    path: "/mahasiswa/akomodasi/lapangan-basket",
   },
   {
     label: { id: "COFFEE SHOP", en: "COFFEE SHOP" },
     path: "/mahasiswa/akomodasi/coffee-shop",
   },
   {
-    label: { id: "PUJASERA", en: "FOOD COURT" },
-    path: "/mahasiswa/akomodasi/pujasera",
+    label: { id: "KANTIN", en: "CANTEEN" },
+    path: "/mahasiswa/akomodasi/kantin",
   },
   {
     label: { id: "KLINIK", en: "CLINIC" },
@@ -169,62 +176,47 @@ export default function Accommodation() {
                 paragraphs={item.header.paragraphs}
               />
 
-              {item.segeraTersedia ? (
-                // Fasilitas yang isinya belum diterima: tanpa galeri dan daftar
-                // fasilitas, cukup penanda bahwa rinciannya menyusul.
-                <div className="border border-dashed border-gray-300 bg-white p-10 sm:p-14 text-center rounded-xs">
-                  <p className="text-sm font-medium text-gray-500">
-                    {t({
-                      id: "Foto dan rincian fasilitas segera tersedia.",
-                      en: "Photos and facility details coming soon.",
-                    })}
-                  </p>
-                </div>
-              ) : (
-                <>
-                  {/* Galeri foto akomodasi — dengan animasi gambar utama & grid bertingkat (stagger) */}
-                  <FacilityGallery galeri={item.galeri} />
+              {/* Galeri foto akomodasi — dengan animasi gambar utama & grid bertingkat (stagger) */}
+              <FacilityGallery galeri={item.galeri} />
 
-                  {/*
-                    Fasilitas Utama.
+              {/*
+                Fasilitas Utama.
 
-                    Kartu bercentang mengikuti susunan semula. Grid-nya dua kolom, bukan
-                    empat: butir fasilitas pada dokumen program studi berupa kalimat
-                    penuh, bukan frasa pendek, sehingga empat kolom membuatnya terpotong.
-                  */}
-                  <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={viewportSettings}
-                    className="space-y-4 pt-2"
-                  >
-                    <motion.h3
+                Kartu bercentang mengikuti susunan semula. Grid-nya dua kolom, bukan
+                empat: butir fasilitas pada dokumen program studi berupa kalimat
+                penuh, bukan frasa pendek, sehingga empat kolom membuatnya terpotong.
+              */}
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={viewportSettings}
+                className="space-y-4 pt-2"
+              >
+                <motion.h3
+                  variants={cardVariants}
+                  className="text-xs sm:text-sm font-bold uppercase tracking-wider text-heading pb-3 border-b border-gray-200"
+                >
+                  {t({ id: "Fasilitas Utama", en: "Main Facilities" })}
+                </motion.h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {item.fasilitas.map((feat, idx) => (
+                    <motion.div
+                      key={idx}
                       variants={cardVariants}
-                      className="text-xs sm:text-sm font-bold uppercase tracking-wider text-heading pb-3 border-b border-gray-200"
+                      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+                      className="flex items-start gap-3 p-3.5 bg-white border border-gray-200/80 rounded-sm shadow-2xs hover:border-primary/40 hover:shadow-xs transition-all"
                     >
-                      {t({ id: "Fasilitas Utama", en: "Main Facilities" })}
-                    </motion.h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {item.fasilitas.map((feat, idx) => (
-                        <motion.div
-                          key={idx}
-                          variants={cardVariants}
-                          whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                          className="flex items-start gap-3 p-3.5 bg-white border border-gray-200/80 rounded-sm shadow-2xs hover:border-primary/40 hover:shadow-xs transition-all"
-                        >
-                          <div className="w-6 h-6 rounded-full bg-red-50 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                            <FiCheck className="w-3.5 h-3.5 stroke-[2.5]" />
-                          </div>
-                          <span className="text-xs sm:text-sm text-heading font-medium leading-relaxed">
-                            {t(feat)}
-                          </span>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </motion.div>
-                </>
-              )}
+                      <div className="w-6 h-6 rounded-full bg-red-50 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                        <FiCheck className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </div>
+                      <span className="text-xs sm:text-sm text-heading font-medium leading-relaxed">
+                        {t(feat)}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
 
               {/* Navigasi Kemahasiswaan Bawah */}
               <motion.div

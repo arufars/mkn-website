@@ -422,7 +422,7 @@ export default function EventPage() {
                         <p className="text-xs sm:text-sm text-gray-500 font-normal">
                           {getIndoDayName(group.date, lang)} • {group.events.length} {lang === "en" ? "events" : "acara"}
                         </p>
-                        <div className="w-12 h-[2px] bg-primary mt-3" />
+                        <div className="w-12 h-[1.5px] bg-heading mt-3" />
                       </div>
 
                       {/* Kolom Kanan: Daftar Acara di Tanggal Ini */}
