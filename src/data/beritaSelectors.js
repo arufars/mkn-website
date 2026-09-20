@@ -48,12 +48,14 @@ export function parseIndonesianDate(str) {
 }
 
 /**
- * Comparator: item dengan `pinned: true` naik ke atas,
+ * Comparator: item dengan `isPinned: true` naik ke atas,
  * sisanya diurutkan dari terbaru ke terlama.
  */
 const terbaruDuluan = (a, b) => {
-  if (a.pinned && !b.pinned) return -1;
-  if (!a.pinned && b.pinned) return 1;
+  const aPin = Boolean(a.isPinned || a.pinned);
+  const bPin = Boolean(b.isPinned || b.pinned);
+  if (aPin && !bPin) return -1;
+  if (!aPin && bPin) return 1;
   return parseIndonesianDate(b.tanggal) - parseIndonesianDate(a.tanggal);
 };
 
@@ -62,19 +64,49 @@ const isPengumuman = (item) => item.tags === TAG_PENGUMUMAN;
 // Dihitung sekali saat modul dimuat: `berita.json` statis, jadi tidak ada
 // gunanya mengurutkan ulang pada tiap render.
 
-/** Seluruh berita (non-pengumuman), pinned dulu lalu terbaru lebih dulu. */
-export const berita = beritaList.filter((item) => !isPengumuman(item)).sort(terbaruDuluan);
-
-/** Seluruh pengumuman, pinned dulu lalu terbaru lebih dulu. */
-export const pengumuman = beritaList.filter(isPengumuman).sort(terbaruDuluan);
+/**
+ * Mengambil daftar berita lokal berdasarkan bahasa aktif (id / en).
+ * Pinned selalu diprioritaskan di awal, lalu diurutkan tanggal terbaru.
+ * @param {string} [locale="id"]
+ * @returns {Array}
+ */
+export const getBeritaByLocale = (locale = "id") =>
+  beritaList
+    .filter(
+      (item) => !isPengumuman(item) && (item.locale || "id") === (locale || "id")
+    )
+    .sort(terbaruDuluan);
 
 /**
- * Berita yang sedang dipin (`pinned: true`). Jika tidak ada,
+ * Mengambil daftar pengumuman lokal berdasarkan bahasa aktif (id / en).
+ * Pinned selalu diprioritaskan di awal, lalu diurutkan tanggal terbaru.
+ * @param {string} [locale="id"]
+ * @returns {Array}
+ */
+export const getPengumumanByLocale = (locale = "id") =>
+  beritaList
+    .filter(
+      (item) => isPengumuman(item) && (item.locale || "id") === (locale || "id")
+    )
+    .sort(terbaruDuluan);
+
+/** Seluruh berita bahasa Indonesia (non-pengumuman), pinned dulu lalu terbaru lebih dulu. */
+export const berita = getBeritaByLocale("id");
+
+/** Seluruh pengumuman bahasa Indonesia, pinned dulu lalu terbaru lebih dulu. */
+export const pengumuman = getPengumumanByLocale("id");
+
+/**
+ * Berita yang sedang dipin (`isPinned: true`). Jika tidak ada,
  * kembalikan `null` agar konsumen bisa fallback ke item terbaru.
+ * @param {string} [locale="id"]
  */
-export const getPinnedBerita = () => berita.find((item) => item.pinned) ?? null;
+export const getPinnedBerita = (locale = "id") =>
+  getBeritaByLocale(locale).find((item) => item.isPinned || item.pinned) ?? null;
 
 /**
- * Pengumuman yang sedang dipin (`pinned: true`). Jika tidak ada, kembalikan `null`.
+ * Pengumuman yang sedang dipin (`isPinned: true`). Jika tidak ada, kembalikan `null`.
+ * @param {string} [locale="id"]
  */
-export const getPinnedPengumuman = () => pengumuman.find((item) => item.pinned) ?? null;
+export const getPinnedPengumuman = (locale = "id") =>
+  getPengumumanByLocale(locale).find((item) => item.isPinned || item.pinned) ?? null;

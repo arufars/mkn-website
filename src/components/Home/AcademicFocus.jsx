@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
+import { TbPinFilled } from "react-icons/tb";
 
-import { berita } from "../../data/beritaSelectors";
+import { berita, getBeritaByLocale } from "../../data/beritaSelectors";
 import { getHybridBeritaList } from "../../services/beritaService";
 import { formatBeritaDate } from "../../utils/beritaFormatters";
 import { getBeritaImage } from "../../utils/imageResolver";
@@ -60,10 +61,12 @@ const cardVariants = {
 export default function AcademicFocus() {
   const ui = useUi();
   const { lang } = useLanguage();
-  const [items, setItems] = useState(berita);
+  const [items, setItems] = useState(() => getBeritaByLocale(lang));
 
   useEffect(() => {
     let isMounted = true;
+    setItems(getBeritaByLocale(lang));
+
     getHybridBeritaList({ locale: lang })
       .then((data) => {
         if (isMounted && Array.isArray(data) && data.length > 0) {
@@ -79,8 +82,23 @@ export default function AcademicFocus() {
     };
   }, [lang]);
 
-  const featured = items[0] || berita[0];
-  const sideArticles = items.slice(1, 4);
+  // Pisahkan berita yang di-pin dan non-pinned
+  const pinnedItems = items.filter((item) => Boolean(item.isPinned || item.pinned));
+  const nonPinnedItems = items.filter((item) => !Boolean(item.isPinned || item.pinned));
+
+  // Pinned pertama jadi featured di kiri; jika tidak ada yang dipin, ambil non-pinned terbaru
+  const featured = pinnedItems.length > 0 ? pinnedItems[0] : (nonPinnedItems[0] || items[0] || getBeritaByLocale(lang)[0]);
+  const featuredIsPinned = Boolean(featured?.isPinned || featured?.pinned);
+
+  // Sisa item yang dipin (pinned ke-2, ke-3, dst) diletakkan di sisi kanan (side articles)
+  const remainingPinned = pinnedItems.filter((item) => item !== featured);
+
+  // Sisa slot kanan (maksimal 3 artikel) diisi oleh berita non-pinned dengan tanggal paling baru
+  const remainingSlots = Math.max(0, 3 - remainingPinned.length);
+  const sideNonPinned = nonPinnedItems.filter((item) => item !== featured).slice(0, remainingSlots);
+
+  // Kolom kanan: Prioritaskan pinned tersisa dulu, baru diikuti yang tanggal paling baru
+  const sideArticles = [...remainingPinned, ...sideNonPinned].slice(0, 3);
 
   const featuredSlug = featured?.slug || generateSlug(featured?.title, featured?.slug);
   const featuredImg = featured?.imageUrl || (featured?.gambar ? (typeof featured.gambar === "string" && (featured.gambar.startsWith("http") || featured.gambar.startsWith("/")) ? featured.gambar : getBeritaImage(featured.gambar)) : "");
@@ -169,7 +187,7 @@ export default function AcademicFocus() {
                 />
               </motion.div>
 
-              <motion.span
+              <motion.div
                 initial={{
                   opacity: 0,
                   y: -10,
@@ -184,10 +202,18 @@ export default function AcademicFocus() {
                   delay: 0.7,
                 }}
                 viewport={viewportSettings}
-                className="absolute top-4 left-4 bg-black/85 text-white text-xs font-semibold px-3 py-1.5 uppercase tracking-wider"
+                className="absolute top-4 left-4 flex items-center gap-2 z-10"
               >
-                BERITA UTAMA
-              </motion.span>
+                <span className="bg-black/85 text-white text-xs font-semibold px-3 py-1.5 uppercase tracking-wider rounded-xs">
+                  BERITA UTAMA
+                </span>
+                {featuredIsPinned && (
+                  <span className="bg-primary text-white text-xs font-semibold px-2.5 py-1.5 uppercase tracking-wider rounded-xs inline-flex items-center gap-1 shadow-sm">
+                    <TbPinFilled className="text-xs" />
+                    DIPIN
+                  </span>
+                )}
+              </motion.div>
             </Link>
 
             {/* Article Content */}
@@ -239,6 +265,7 @@ export default function AcademicFocus() {
               const artContent = article.plainContent || (typeof article.content === "string" ? article.content : "");
               const artDate = formatBeritaDate(article.tanggal, lang);
               const artTag = Array.isArray(article.tags) ? article.tags[0] : (article.tags || "BERITA");
+              const artIsPinned = Boolean(article.isPinned || article.pinned);
 
               return (
                 <motion.article
@@ -246,12 +273,17 @@ export default function AcademicFocus() {
                   variants={itemVariants}
                   className="space-y-2 group pb-7 border-b border-gray-100 last:border-b-0 last:pb-0"
                 >
-                  <motion.span
-                    variants={itemVariants}
-                    className="text-xs font-bold tracking-wider text-primary uppercase block"
-                  >
-                    {artTag}
-                  </motion.span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-bold tracking-wider text-primary uppercase">
+                      {artTag}
+                    </span>
+                    {artIsPinned && (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-wider uppercase bg-primary text-white px-1.5 py-0.5 rounded-xs">
+                        <TbPinFilled className="text-[9px]" />
+                        DIPIN
+                      </span>
+                    )}
+                  </div>
 
                   <motion.div variants={itemVariants}>
                     <Link to={`/berita/${artSlug}`}>

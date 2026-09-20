@@ -7,6 +7,8 @@ import { TbPinFilled } from "react-icons/tb";
 import {
   berita,
   pengumuman,
+  getBeritaByLocale,
+  getPengumumanByLocale,
   getPinnedBerita,
   getPinnedPengumuman,
 } from "../../data/beritaSelectors";
@@ -65,10 +67,14 @@ const cardVariants = {
 export default function Announcement() {
   const ui = useUi();
   const { lang } = useLanguage();
-  const [hybridPengumuman, setHybridPengumuman] = useState(pengumuman);
+  const [hybridPengumuman, setHybridPengumuman] = useState(() =>
+    getPengumumanByLocale(lang)
+  );
 
   useEffect(() => {
     let isMounted = true;
+    setHybridPengumuman(getPengumumanByLocale(lang));
+
     getHybridPengumumanList({ locale: lang })
       .then((items) => {
         if (isMounted && Array.isArray(items) && items.length > 0) {
@@ -85,21 +91,27 @@ export default function Announcement() {
   }, [lang]);
 
   // Bila belum ada pengumuman, section ini fallback ke berita agar tidak kosong.
-  const displayList = hybridPengumuman.length > 0 ? hybridPengumuman : berita;
+  const displayList =
+    hybridPengumuman.length > 0 ? hybridPengumuman : getBeritaByLocale(lang);
   const isAnnouncement = hybridPengumuman.length > 0;
 
-  const pinnedFeatured =
-    hybridPengumuman.length > 0
-      ? hybridPengumuman.find((x) => x.isPinned || x.pinned) ?? hybridPengumuman[0]
-      : getPinnedBerita() ?? berita[0];
+  // Pisahkan pengumuman yang di-pin dan non-pinned
+  const pinnedItems = displayList.filter((item) => Boolean(item.isPinned || item.pinned));
+  const nonPinnedItems = displayList.filter((item) => !Boolean(item.isPinned || item.pinned));
 
-  const featured = pinnedFeatured;
+  // Pinned pertama jadi featured di kiri; jika tidak ada, ambil non-pinned terbaru
+  const featured = pinnedItems.length > 0 ? pinnedItems[0] : (nonPinnedItems[0] || displayList[0]);
   const featuredIsPinned = Boolean(featured?.isPinned || featured?.pinned);
 
-  // Sisi kanan: 3 item berikutnya dari daftar (kecuali featured)
-  const sideArticles = displayList
-    .filter((item) => item !== featured)
-    .slice(0, 3);
+  // Sisa item yang dipin (pinned ke-2, ke-3, dst) diletakkan di sisi kanan (side articles)
+  const remainingPinned = pinnedItems.filter((item) => item !== featured);
+
+  // Sisa slot kanan (maksimal 3 artikel) diisi oleh pengumuman non-pinned dengan tanggal paling baru
+  const remainingSlots = Math.max(0, 3 - remainingPinned.length);
+  const sideNonPinned = nonPinnedItems.filter((item) => item !== featured).slice(0, remainingSlots);
+
+  // Kolom kanan: Prioritaskan pinned tersisa dulu, baru diikuti yang tanggal paling baru
+  const sideArticles = [...remainingPinned, ...sideNonPinned].slice(0, 3);
 
   // Tidak semua pengumuman menyertakan flyer
   const hasFlyer = Boolean(featured?.gambar);
@@ -203,27 +215,38 @@ export default function Announcement() {
                   />
                 </motion.div>
 
-                {featured.kategori && (
-                  <motion.span
-                    initial={{
-                      opacity: 0,
-                      y: -10,
-                    }}
-                    whileInView={{
-                      opacity: 1,
-                      y: 0,
-                    }}
-                    transition={{
-                      duration: 0.6,
-                      ease: "easeOut",
-                      delay: 0.7,
-                    }}
-                    viewport={viewportSettings}
-                    className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-primary text-white px-2.5 py-0.5 rounded-xs shadow-2xs"
-                  >
-                    {featured.kategori}
-                  </motion.span>
-                )}
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    y: -10,
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    ease: "easeOut",
+                    delay: 0.7,
+                  }}
+                  viewport={viewportSettings}
+                  className="absolute top-4 left-4 flex items-center gap-2 z-10"
+                >
+                  <span className="bg-black/85 text-white text-xs font-semibold px-3 py-1.5 uppercase tracking-wider rounded-xs">
+                    PENGUMUMAN UTAMA
+                  </span>
+                  {featuredIsPinned && (
+                    <span className="bg-primary text-white text-xs font-semibold px-2.5 py-1.5 uppercase tracking-wider rounded-xs inline-flex items-center gap-1 shadow-sm">
+                      <TbPinFilled className="text-xs" />
+                      DIPIN
+                    </span>
+                  )}
+                  {featured.kategori && (
+                    <span className="text-[10px] font-bold tracking-wider text-primary uppercase bg-white/95 px-2 py-1 rounded-xs shadow-sm">
+                      {featured.kategori}
+                    </span>
+                  )}
+                </motion.div>
               </Link>
             )}
 
@@ -242,20 +265,30 @@ export default function Announcement() {
                   : "flex-1 flex flex-col bg-white border border-gray-200 rounded-xs border-l-3 border-l-primary p-6 sm:p-8"
               }
             >
-              {/* Metadata — tanpa flyer, badge kategori tidak punya tempat
-                  menempel, jadi ikut ke baris ini seperti kartu di kolom kanan */}
+              {/* Tanpa flyer: Kotak PENGUMUMAN UTAMA + DIPIN di baris atas kartu */}
+              {!hasFlyer && (
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-center gap-2 mb-3"
+                >
+                  <span className="bg-black/85 text-white text-xs font-semibold px-3 py-1 uppercase tracking-wider rounded-xs">
+                    PENGUMUMAN UTAMA
+                  </span>
+                  {featuredIsPinned && (
+                    <span className="bg-primary text-white text-xs font-semibold px-2.5 py-1 uppercase tracking-wider rounded-xs inline-flex items-center gap-1 shadow-sm">
+                      <TbPinFilled className="text-xs" />
+                      DIPIN
+                    </span>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Metadata */}
               <motion.div
                 variants={itemVariants}
                 className="flex flex-wrap items-center gap-3 text-xs text-gray-500 mb-2"
               >
-                {featuredIsPinned && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider uppercase bg-primary text-white px-2 py-0.5 rounded-xs">
-                    <TbPinFilled className="text-[10px]" />
-                    DIPIN
-                  </span>
-                )}
-
-                {!hasFlyer && featured.kategori && (
+                {featured.kategori && (
                   <span className="text-[10px] font-bold tracking-wider text-primary uppercase bg-red-50 border border-primary/20 px-2 py-0.5 rounded-xs">
                     {featured.kategori}
                   </span>
@@ -347,8 +380,14 @@ export default function Announcement() {
                 {/* Category + Date */}
                 <motion.div
                   variants={itemVariants}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 flex-wrap"
                 >
+                  {Boolean(article.isPinned || article.pinned) && (
+                    <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-wider uppercase bg-primary text-white px-1.5 py-0.5 rounded-xs">
+                      <TbPinFilled className="text-[9px]" />
+                      DIPIN
+                    </span>
+                  )}
                   {article.kategori && (
                     <span className="text-[10px] font-bold tracking-wider text-primary uppercase bg-red-50 border border-primary/20 px-2 py-0.5 rounded-xs">
                       {article.kategori}
