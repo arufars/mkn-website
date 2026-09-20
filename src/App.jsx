@@ -95,9 +95,11 @@ const Prestasi = lazy(() => import("./pages/StudentLife/Prestasi"));
 // Event sub-pages
 const EventPage = lazy(() => import("./pages/Event/index"));
 const EventDetailPage = lazy(() => import("./pages/Event/EventDetail"));
-// Event V2 — Strapi CMS
-const AgendaV2 = lazy(() => import("./pages/Event/v2/AgendaV2Index"));
-const AgendaV2Detail = lazy(() => import("./pages/Event/v2/AgendaV2Detail"));
+
+function EventV2Redirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/event/${slug || ""}`} replace />;
+}
 
 // Alumni & Karir sub-pages
 const AlumniLayout = lazy(() => import("./pages/Alumni/index"));
@@ -278,9 +280,9 @@ export default function App() {
         <Route path="/event/:slug" element={<EventDetailPage />} />
         <Route path="/agenda" element={<Navigate to="/event" replace />} />
 
-        {/* Event V2 / Agenda V2 — Strapi CMS */}
-        <Route path="/event-v2" element={<AgendaV2 />} />
-        <Route path="/event-v2/:slug" element={<AgendaV2Detail />} />
+        {/* Redirect Rute Usang Event V2 (Backward Compatibility) */}
+        <Route path="/event-v2" element={<Navigate to="/event" replace />} />
+        <Route path="/event-v2/:slug" element={<EventV2Redirect />} />
 
         {/* Kerja Sama */}
         <Route path="/kerja-sama" element={<KerjaSama />} />

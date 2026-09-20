@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiCalendar, FiChevronLeft, FiChevronRight, FiRefreshCw, FiAlertCircle } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
 import Navbar from "../../components/Navbar";
@@ -10,7 +10,12 @@ import EventCalendarSidebar from "../../components/Event/EventCalendarSidebar";
 import EventCard from "../../components/Event/EventCard";
 import EventDetailModal from "../../components/Event/EventDetailModal";
 import SubmitEventModal from "../../components/Event/SubmitEventModal";
-import { eventData, formatIndoDate, getIndoDayName } from "../../data/eventData";
+import { eventCategories } from "../../data/eventData";
+import { getHybridEventList } from "../../services/eventService";
+import {
+  formatEventDate as formatIndoDate,
+  getEventDayName as getIndoDayName,
+} from "../../utils/eventFormatters";
 import { useT, useLanguage } from "../../i18n/languageContext";
 
 const viewportSettings = {
@@ -60,6 +65,11 @@ export default function EventPage() {
   const t = useT();
   const { lang } = useLanguage();
 
+  // State data hybrid
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   // Bulan default kalender: September 2026
   const defaultYear = 2026;
   const defaultMonth = 8; // 0-indexed: 8 = September
@@ -79,14 +89,33 @@ export default function EventPage() {
   const [activeEventModal, setActiveEventModal] = useState(null);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
+  // Fetch data hybrid (Strapi CMS + Local)
+  const fetchEvents = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getHybridEventList({ locale: lang });
+      setEvents(data);
+    } catch (err) {
+      console.error("[EventPage] Error fetching hybrid events:", err);
+      setError(err?.message || "Failed to load events");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, [lang]);
+
   // Ambil semua daftar tanggal unik yang memiliki event
   const allEventDates = useMemo(() => {
-    return Array.from(new Set(eventData.map((e) => e.date)));
-  }, []);
+    return Array.from(new Set(events.map((e) => e.date).filter(Boolean)));
+  }, [events]);
 
   // Filter event berdasarkan kriteria
   const filteredEvents = useMemo(() => {
-    return eventData.filter((item) => {
+    return events.filter((item) => {
       // Filter tanggal — hanya aktif jika selectedDate dipilih (tidak null)
       if (selectedDate && item.date !== selectedDate) {
         return false;
@@ -94,27 +123,50 @@ export default function EventPage() {
 
       // Filter kategori
       if (selectedCategory) {
-        const catVal = typeof item.category === "object" ? item.category.id : item.category;
+        const catVal =
+          typeof item.category === "object" && item.category !== null
+            ? item.category.id || item.category.name
+            : item.category;
         if (catVal !== selectedCategory) return false;
       }
 
       // Filter keyword
       if (searchKeyword.trim()) {
         const q = searchKeyword.toLowerCase();
-        const titleId = typeof item.title === "object" ? item.title.id : (item.title || "");
+        const titleId = typeof item.title === "object" ? item.title.id : item.title || "";
         const titleEn = typeof item.title === "object" ? item.title.en : "";
-        const descId = typeof item.description === "object" ? item.description.id : (item.description || "");
+        const descId = typeof item.description === "object" ? item.description.id : item.description || "";
         const descEn = typeof item.description === "object" ? item.description.en : "";
-        const matchSpeaker = (typeof item.speaker === "object" ? (item.speaker.id + " " + item.speaker.en) : (item.speaker || "")).toLowerCase().includes(q);
-        const matchVenue = (typeof item.venue === "object" ? (item.venue.id + " " + item.venue.en) : (item.venue || "")).toLowerCase().includes(q);
-        if (!titleId.toLowerCase().includes(q) && !titleEn.toLowerCase().includes(q) && !descId.toLowerCase().includes(q) && !descEn.toLowerCase().includes(q) && !matchSpeaker && !matchVenue) {
+        const matchSpeaker = (
+          typeof item.speaker === "object"
+            ? (item.speaker.id || "") + " " + (item.speaker.en || "")
+            : item.speaker || ""
+        )
+          .toLowerCase()
+          .includes(q);
+        const matchVenue = (
+          typeof item.venue === "object"
+            ? (item.venue.id || "") + " " + (item.venue.en || "")
+            : item.venue || ""
+        )
+          .toLowerCase()
+          .includes(q);
+
+        if (
+          !titleId.toLowerCase().includes(q) &&
+          !titleEn.toLowerCase().includes(q) &&
+          !descId.toLowerCase().includes(q) &&
+          !descEn.toLowerCase().includes(q) &&
+          !matchSpeaker &&
+          !matchVenue
+        ) {
           return false;
         }
       }
 
       return true;
     });
-  }, [selectedDate, selectedCategory, searchKeyword]);
+  }, [events, selectedDate, selectedCategory, searchKeyword]);
 
   // Kelompokkan event berdasarkan tanggal
   const groupedEvents = useMemo(() => {
@@ -126,10 +178,9 @@ export default function EventPage() {
       groups[ev.date].push(ev);
     });
 
-    // Urutkan terbaru dari atas (descending), pinned naik ke atas di setiap group
+    // Urutkan tanggal sesuai kronologis atau terbaru
     return Object.keys(groups)
       .sort()
-      .reverse()
       .map((dateKey) => ({
         date: dateKey,
         events: groups[dateKey].sort((a, b) => {
@@ -356,7 +407,30 @@ export default function EventPage() {
             </AnimatePresence>
 
             {/* Feed Agenda (Dikelompokkan Berdasarkan Tanggal) */}
-            {groupedEvents.length > 0 ? (
+            {loading ? (
+              <div className="py-20 text-center space-y-4">
+                <div className="inline-block w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-gray-500 font-medium">
+                  {t({ id: "Memuat agenda kegiatan...", en: "Loading events calendar..." })}
+                </p>
+              </div>
+            ) : error && events.length === 0 ? (
+              <div className="p-8 bg-red-50 border border-red-200 rounded-sm text-center space-y-4">
+                <FiAlertCircle className="w-8 h-8 text-primary mx-auto" />
+                <h3 className="font-heading font-bold text-heading">
+                  {t({ id: "Gagal Memuat Agenda", en: "Failed to Load Events" })}
+                </h3>
+                <p className="text-xs text-gray-600 max-w-md mx-auto">{error}</p>
+                <button
+                  type="button"
+                  onClick={fetchEvents}
+                  className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xs shadow-xs hover:bg-[#680000] cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <FiRefreshCw className="w-3.5 h-3.5" />
+                  <span>{t({ id: "Coba Lagi", en: "Try Again" })}</span>
+                </button>
+              </div>
+            ) : groupedEvents.length > 0 ? (
               isCompactView ? (
                 /* COMPACT VIEW */
                 <div className="divide-y divide-gray-200 border-t border-b border-gray-200">

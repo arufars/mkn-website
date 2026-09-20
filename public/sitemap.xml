@@ -550,11 +550,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mkn.unissula.ac.id/event-v2</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://mkn.unissula.ac.id/event/kuliah-umum-bersertifikat-september-2026</loc>
     <lastmod>2026-09-26</lastmod>
     <changefreq>monthly</changefreq>

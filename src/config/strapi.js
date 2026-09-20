@@ -14,7 +14,7 @@ export const STRAPI_BASE_URL =
 // 2. ENDPOINT API STRAPI
 export const STRAPI_ENDPOINTS = {
   BERITA: "/api/beritas",
-  AGENDA: "/api/agendas",
+  AGENDA: "/api/agenda",
   AGENDA_V2: "/api/agenda",
   PENGUMUMAN: "/api/pengumumen",
   PENGUMUMAN_V2: "/api/pengumumen",
@@ -42,6 +42,7 @@ export const STRAPI_SORT = {
   BERITA_DEFAULT: ["isPinned:desc", "tanggal:desc", "createdAt:desc"],
   TERBARU: ["tanggal:desc", "createdAt:desc"],
   TERLAMA: ["tanggal:asc", "createdAt:asc"],
+  AGENDA_DEFAULT: ["pinned:desc", "date:asc", "createdAt:desc"],
 };
 
 // 6. PRESET DEEP POPULATE
@@ -73,17 +74,26 @@ export const STRAPI_POPULATE = {
     },
   },
 
-  // Populate lengkap untuk Agenda V2 (Strapi /api/agenda)
-  // Field: title, slug, date, time, category, venue, organizer,
-  //        description, fullDescription, image, cp, isFeatured, pinned
-  // Catatan: category adalah field skalar (string/enum), bukan relasi, jadi tidak di-populate
+  // Populate lengkap untuk Agenda (Strapi /api/agenda)
+  AGENDA_FULL: {
+    image: {
+      populate: "*",
+    },
+  },
+
+  // Populate ringan untuk kartu/grid agenda
+  AGENDA_CARD: {
+    image: {
+      populate: "*",
+    },
+  },
+
   AGENDA_V2_FULL: {
     image: {
       populate: "*",
     },
   },
 
-  // Populate ringan untuk kartu/grid agenda terkait
   AGENDA_V2_CARD: {
     image: {
       populate: "*",
@@ -94,19 +104,6 @@ export const STRAPI_POPULATE = {
   // Menggunakan wildcard '*' agar seluruh relasi & media otomatis terambil secara dinamis
   PENGUMUMAN: "*",
   PENGUMUMAN_V2: "*",
-
-  // Preset untuk Agenda / Event mendatang (lama)
-  AGENDA_FULL: {
-    gambar: {
-      populate: "*",
-    },
-    kategori: {
-      populate: "*",
-    },
-    lampiran: {
-      populate: "*",
-    },
-  },
 };
 
 export default {
