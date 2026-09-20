@@ -1,12 +1,16 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
 
 import { berita } from "../../data/beritaSelectors";
+import { getHybridBeritaList } from "../../services/beritaService";
+import { formatBeritaDate } from "../../utils/beritaFormatters";
 import { getBeritaImage } from "../../utils/imageResolver";
 import { generateSlug } from "../../utils/slugHelper";
 import Img from "../ui/Img";
 import { useUi } from "../../i18n/useUi";
+import { useLanguage } from "../../i18n/languageContext";
 
 const viewportSettings = {
   once: true,
@@ -55,10 +59,33 @@ const cardVariants = {
 
 export default function AcademicFocus() {
   const ui = useUi();
-  // Sumber dan urutannya sama persis dengan halaman Berita, sehingga entri
-  // teratas di sini selalu berita terbaru yang sama.
-  const featured = berita[0];
-  const sideArticles = berita.slice(1, 4);
+  const { lang } = useLanguage();
+  const [items, setItems] = useState(berita);
+
+  useEffect(() => {
+    let isMounted = true;
+    getHybridBeritaList({ locale: lang })
+      .then((data) => {
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setItems(data);
+        }
+      })
+      .catch((err) => {
+        console.warn("[AcademicFocus] Fallback to local berita:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lang]);
+
+  const featured = items[0] || berita[0];
+  const sideArticles = items.slice(1, 4);
+
+  const featuredSlug = featured?.slug || generateSlug(featured?.title, featured?.slug);
+  const featuredImg = featured?.imageUrl || (featured?.gambar ? (typeof featured.gambar === "string" && (featured.gambar.startsWith("http") || featured.gambar.startsWith("/")) ? featured.gambar : getBeritaImage(featured.gambar)) : "");
+  const featuredContent = featured?.plainContent || (typeof featured?.content === "string" ? featured?.content : "");
+  const featuredDate = formatBeritaDate(featured?.tanggal, lang);
 
   return (
     <section className="w-full bg-hero-heading font-body py-16 sm:py-20 border-b border-gray-200 overflow-hidden">
@@ -103,7 +130,7 @@ export default function AcademicFocus() {
           >
             {/* Image */}
             <Link
-              to={`/berita/${generateSlug(featured.title, featured.slug)}`}
+              to={`/berita/${featuredSlug}`}
               className="relative w-full aspect-[16/9] sm:aspect-[16/8.5] bg-gray-100 overflow-hidden block"
             >
               <motion.div
@@ -126,7 +153,7 @@ export default function AcademicFocus() {
                 className="w-full h-full"
               >
                 <Img
-                  src={getBeritaImage(featured.gambar)}
+                  src={featuredImg}
                   alt={featured.title}
                   className="
                     w-full
@@ -173,7 +200,7 @@ export default function AcademicFocus() {
             >
               <motion.div variants={itemVariants}>
                 <Link
-                  to={`/berita/${generateSlug(featured.title, featured.slug)}`}
+                  to={`/berita/${featuredSlug}`}
                 >
                   <h3 className="font-heading font-normal text-2xl sm:text-3xl lg:text-3xl text-heading leading-snug group-hover:text-primary transition-colors">
                     {featured.title}
@@ -185,7 +212,7 @@ export default function AcademicFocus() {
                 variants={itemVariants}
                 className="mt-3.5 text-sm sm:text-base text-body leading-relaxed max-w-3xl line-clamp-3"
               >
-                {featured.content}
+                {featuredContent}
               </motion.p>
 
               <motion.div
@@ -193,7 +220,7 @@ export default function AcademicFocus() {
                 className="mt-4 pt-1"
               >
                 <span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
-                  {featured.author} &nbsp;|&nbsp; {featured.tanggal}
+                  {featured.author || "admkn"} &nbsp;|&nbsp; {featuredDate}
                 </span>
               </motion.div>
             </motion.div>
@@ -207,47 +234,49 @@ export default function AcademicFocus() {
             viewport={viewportSettings}
             className="lg:col-span-4 space-y-7 lg:border-l lg:border-gray-200 lg:pl-10"
           >
-            {sideArticles.map((article) => (
-              <motion.article
-                key={article.id}
-                variants={itemVariants}
-                className="space-y-2 group pb-7 border-b border-gray-100 last:border-b-0 last:pb-0"
-              >
-                <motion.span
-                  variants={itemVariants}
-                  className="text-xs font-bold tracking-wider text-primary uppercase block"
-                >
-                  {article.tags}
-                </motion.span>
+            {sideArticles.map((article) => {
+              const artSlug = article.slug || generateSlug(article.title, article.slug);
+              const artContent = article.plainContent || (typeof article.content === "string" ? article.content : "");
+              const artDate = formatBeritaDate(article.tanggal, lang);
+              const artTag = Array.isArray(article.tags) ? article.tags[0] : (article.tags || "BERITA");
 
-                <motion.div variants={itemVariants}>
-                  <Link
-                    to={`/berita/${generateSlug(
-                      article.title,
-                      article.slug
-                    )}`}
+              return (
+                <motion.article
+                  key={article.id}
+                  variants={itemVariants}
+                  className="space-y-2 group pb-7 border-b border-gray-100 last:border-b-0 last:pb-0"
+                >
+                  <motion.span
+                    variants={itemVariants}
+                    className="text-xs font-bold tracking-wider text-primary uppercase block"
                   >
-                    <h4 className="font-heading font-normal text-lg text-heading leading-snug group-hover:text-primary transition-colors cursor-pointer">
-                      {article.title}
-                    </h4>
-                  </Link>
-                </motion.div>
+                    {artTag}
+                  </motion.span>
 
-                <motion.p
-                  variants={itemVariants}
-                  className="text-sm text-body leading-relaxed line-clamp-2"
-                >
-                  {article.content}
-                </motion.p>
+                  <motion.div variants={itemVariants}>
+                    <Link to={`/berita/${artSlug}`}>
+                      <h4 className="font-heading font-normal text-lg text-heading leading-snug group-hover:text-primary transition-colors cursor-pointer">
+                        {article.title}
+                      </h4>
+                    </Link>
+                  </motion.div>
 
-                <motion.span
-                  variants={itemVariants}
-                  className="text-xs font-medium tracking-wider text-gray-400 uppercase block pt-1"
-                >
-                  {article.tanggal}
-                </motion.span>
-              </motion.article>
-            ))}
+                  <motion.p
+                    variants={itemVariants}
+                    className="text-sm text-body leading-relaxed line-clamp-2"
+                  >
+                    {artContent}
+                  </motion.p>
+
+                  <motion.span
+                    variants={itemVariants}
+                    className="text-xs font-medium tracking-wider text-gray-400 uppercase block pt-1"
+                  >
+                    {artDate}
+                  </motion.span>
+                </motion.article>
+              );
+            })}
           </motion.div>
 
         </div>

@@ -1,10 +1,14 @@
 import { motion } from "framer-motion";
-import { getStrapiMediaUrl } from "../utils/strapiFormatters";
+import Img from "../../../components/ui/Img";
+import { useT } from "../../../i18n/languageContext";
 
 /**
- * Komponen Galeri dan Dokumentasi Foto Kegiatan dari Strapi
+ * Komponen Galeri & Dokumentasi Foto Kegiatan Berita
+ * Mendukung data media dari Strapi CMS maupun berkas lokal.
  */
-export default function BeritaV2Gallery({ items }) {
+export default function BeritaGallery({ items }) {
+  const t = useT();
+
   if (!Array.isArray(items) || items.length === 0) {
     return null;
   }
@@ -18,13 +22,15 @@ export default function BeritaV2Gallery({ items }) {
       className="pt-6 border-t border-gray-200 space-y-4"
     >
       <h3 className="font-heading font-semibold text-lg sm:text-xl text-heading">
-        Dokumentasi & Galeri Kegiatan
+        {t({
+          id: "Dokumentasi & Galeri Kegiatan",
+          en: "Activity Gallery & Documentation",
+        })}
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item, idx) => {
-          const media = item.foto || item.gambar || item.media || item.image;
-          const imageUrl = getStrapiMediaUrl(media);
+          const imageUrl = item.imageUrl || (typeof item.gambar === "string" ? item.gambar : "");
 
           return (
             <div
@@ -33,7 +39,7 @@ export default function BeritaV2Gallery({ items }) {
             >
               {imageUrl ? (
                 <div className="overflow-hidden bg-gray-100">
-                  <img
+                  <Img
                     src={imageUrl}
                     alt={item.keterangan || `Foto dokumentasi ${idx + 1}`}
                     className="w-full aspect-4/3 object-cover object-center hover:scale-105 transition-transform duration-500"
@@ -41,7 +47,7 @@ export default function BeritaV2Gallery({ items }) {
                 </div>
               ) : (
                 <div className="w-full aspect-4/3 bg-gray-100 flex items-center justify-center text-xs text-gray-400">
-                  Tidak ada foto
+                  {t({ id: "Tidak ada foto", en: "No photo" })}
                 </div>
               )}
 

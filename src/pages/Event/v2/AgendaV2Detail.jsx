@@ -20,7 +20,7 @@ import {
   generateGoogleCalendarUrl,
   downloadIcsFile,
 } from "./utils/agendaFormatters";
-import StrapiArticleBlocks from "../../Berita/v2/components/StrapiArticleBlocks";
+import StrapiArticleBlocks from "../../../components/Strapi/StrapiArticleBlocks";
 
 /* =========================================================
    ANIMATION VARIANTS (identik dengan EventDetail.jsx)

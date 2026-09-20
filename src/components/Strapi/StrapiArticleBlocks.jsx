@@ -1,10 +1,10 @@
 import { BlocksRenderer } from "@strapi/blocks-react-renderer";
-import { STRAPI_BASE_URL } from "../../../../config/strapi";
+import { STRAPI_BASE_URL } from "../../config/strapi";
 
 /**
- * Komponen perender konten Rich Text Blocks Strapi
- * Disesuaikan dengan panduan 'strapi.md' (contoh 2: Tailwind combo)
- * serta typography tema Magister Kenotariatan UNISSULA.
+ * Komponen perender konten Rich Text Blocks Strapi 5
+ * Menggunakan @strapi/blocks-react-renderer dengan typography
+ * tema Magister Kenotariatan UNISSULA.
  */
 export default function StrapiArticleBlocks({ content }) {
   if (!content || !Array.isArray(content) || content.length === 0) {
@@ -72,7 +72,7 @@ export default function StrapiArticleBlocks({ content }) {
               <figure className="my-7">
                 <img
                   src={imageUrl}
-                  alt={image?.alternativeText || "Ilustrasi berita"}
+                  alt={image?.alternativeText || "Ilustrasi artikel"}
                   className="rounded-lg max-w-full h-auto shadow-sm mx-auto"
                 />
                 {image?.caption && (

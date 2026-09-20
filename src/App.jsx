@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import Loading from "./components/Loading";
 import ScrollToTop from "./components/ScrollToTop";
 import LembarTanya from "./components/Chat/LembarTanya";
@@ -17,9 +17,12 @@ const StrukturOrganisasi = lazy(() => import("./pages/Profil/StrukturOrganisasi"
 // Berita sub-pages
 const BeritaIndex = lazy(() => import("./pages/Berita/index"));
 const BeritaDetail = lazy(() => import("./pages/Berita/BeritaDetail"));
-const BeritaV2 = lazy(() => import("./pages/Berita/v2/BeritaV2Index"));
-const BeritaV2Detail = lazy(() => import("./pages/Berita/v2/BeritaV2Detail"));
 const PengumumanDetail = lazy(() => import("./pages/Berita/PengumumanDetail"));
+
+function BeritaV2Redirect() {
+  const { title } = useParams();
+  return <Navigate to={`/berita/${title || ""}`} replace />;
+}
 
 const AkademikLayout = lazy(() => import("./pages/Akademik/index"));
 const Kurikulum = lazy(() => import("./pages/Akademik/Kurikulum"));
@@ -137,8 +140,8 @@ export default function App() {
         {/* Berita — catalog & detail routes */}
         <Route path="/berita" element={<BeritaIndex />} />
         <Route path="/berita/:slug" element={<BeritaDetail />} />
-        <Route path="/berita-v2" element={<BeritaV2 />} />
-        <Route path="/berita-v2/:title" element={<BeritaV2Detail />} />
+        <Route path="/berita-v2" element={<Navigate to="/berita" replace />} />
+        <Route path="/berita-v2/:title" element={<BeritaV2Redirect />} />
         {/* Pengumuman Terpadu: List diarahkan ke /berita?kategori=pengumuman, Detail di /pengumuman/:slug */}
         <Route path="/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
         <Route path="/pengumuman/:slug" element={<PengumumanDetail />} />

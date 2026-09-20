@@ -18,6 +18,8 @@ import { useT, useLanguage } from "../../i18n/languageContext";
 import { useUi } from "../../i18n/useUi";
 import { berita as beritaTerurut, pengumuman as pengumumanTerurut } from "../../data/beritaSelectors";
 import { getHybridPengumumanList } from "../../services/pengumumanService";
+import { getHybridBeritaList } from "../../services/beritaService";
+import { formatBeritaDate } from "../../utils/beritaFormatters";
 import { getBeritaImage } from "../../utils/imageResolver";
 import { generateSlug } from "../../utils/slugHelper";
 import Img from "../../components/ui/Img";
@@ -315,11 +317,24 @@ export default function BeritaIndex() {
 
   const isBerita = kategori === "berita";
 
-  const beritaItems = beritaTerurut;
+  const [beritaItems, setBeritaItems] = useState(beritaTerurut);
   const [pengumumanItems, setPengumumanItems] = useState(pengumumanTerurut);
 
   useEffect(() => {
     let isMounted = true;
+
+    // Ambil data berita hybrid (Strapi CMS + Local JSON)
+    getHybridBeritaList({ locale: lang })
+      .then((data) => {
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setBeritaItems(data);
+        }
+      })
+      .catch((err) => {
+        console.warn("[BeritaIndex] Fallback to local berita:", err);
+      });
+
+    // Ambil data pengumuman hybrid (Strapi CMS + Local JSON)
     getHybridPengumumanList({ locale: lang })
       .then((data) => {
         if (isMounted && Array.isArray(data) && data.length > 0) {
@@ -387,12 +402,12 @@ export default function BeritaIndex() {
 
   // Featured news: item yang dipin, fallback ke item terbaru
   const featuredNews = useMemo(
-    () => beritaItems.find((item) => item.pinned) ?? beritaItems[0],
+    () => beritaItems.find((item) => item.isPinned || item.pinned) ?? beritaItems[0],
     [beritaItems]
   );
 
   // Apakah featured news memang karena dipin (bukan fallback)
-  const featuredIsPinned = featuredNews?.pinned === true;
+  const featuredIsPinned = Boolean(featuredNews?.isPinned || featuredNews?.pinned);
 
   const allOtherNews = useMemo(
     () => beritaItems.filter((item) => item !== featuredNews),
@@ -522,134 +537,119 @@ export default function BeritaIndex() {
               FEATURED NEWS
           ===================================================== */}
 
-          {isBerita && featuredNews && (
-            <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
-              {/* IMAGE */}
+          {isBerita && featuredNews && (() => {
+            const featuredSlug = featuredNews.slug || generateSlug(featuredNews.title, featuredNews.slug);
+            const featuredImageSrc = featuredNews.imageUrl || (featuredNews.gambar ? (typeof featuredNews.gambar === "string" && (featuredNews.gambar.startsWith("http") || featuredNews.gambar.startsWith("/")) ? featuredNews.gambar : getBeritaImage(featuredNews.gambar)) : "");
+            const featuredContent = featuredNews.plainContent || (typeof featuredNews.content === "string" ? featuredNews.content : "");
+            const featuredDate = formatBeritaDate(featuredNews.tanggal, lang).toUpperCase();
 
-              <div className="lg:col-span-6">
-                <Link
-                  ref={featuredRef}
-                  to={`/berita/${generateSlug(
-                    featuredNews.title,
-                    featuredNews.slug
-                  )}`}
-                  onClick={() => {
-                    try {
-                      sessionStorage.setItem(
-                        BERITA_SESSION_KEY,
-                        JSON.stringify({ page: 1, articleId: "featured" })
-                      );
-                    } catch (_) { /* ignore */ }
-                  }}
-                  className="block w-full aspect-[4/3] bg-[#E8E6E1] rounded-xs relative overflow-hidden group"
-                >
-                  <motion.div
-                    initial={{
-                      opacity: 0,
-                      scale: 1.08,
-                      filter:
-                        "grayscale(100%) blur(4px)",
+            return (
+              <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+                {/* IMAGE */}
+                <div className="lg:col-span-6">
+                  <Link
+                    ref={featuredRef}
+                    to={`/berita/${featuredSlug}`}
+                    onClick={() => {
+                      try {
+                        sessionStorage.setItem(
+                          BERITA_SESSION_KEY,
+                          JSON.stringify({ page: 1, articleId: "featured" })
+                        );
+                      } catch (_) { /* ignore */ }
                     }}
-                    whileInView={{
-                      opacity: 1,
-                      scale: 1,
-                      filter:
-                        "grayscale(0%) blur(0px)",
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      ease: "easeOut",
-                    }}
-                    viewport={viewportSettings}
-                    className="w-full h-full"
+                    className="block w-full aspect-[4/3] bg-[#E8E6E1] rounded-xs relative overflow-hidden group"
                   >
-                    <Img
-                      eager
-                      src={getBeritaImage(
-                        featuredNews.gambar
-                      )}
-                      alt={featuredNews.title}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 rounded-md"
-                      onError={(e) => {
-                        e.currentTarget.style.display =
-                          "none";
+                    <motion.div
+                      initial={{
+                        opacity: 0,
+                        scale: 1.08,
+                        filter: "grayscale(100%) blur(4px)",
                       }}
-                    />
-                  </motion.div>
-                </Link>
-              </div>
-
-              {/* CONTENT */}
-
-              <div className="lg:col-span-6 space-y-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold tracking-wider text-primary uppercase">
-                    {t(halaman.beritaUtama)} ·{" "}
-                    {featuredNews.tanggal
-                      ? featuredNews.tanggal.toUpperCase()
-                      : "OKTOBER 2022"}
-                  </span>
-                  {featuredIsPinned && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider uppercase bg-primary text-white px-2 py-0.5 rounded-xs">
-                      <TbPinFilled className="text-xs" />
-                      {t({ id: "DIPIN", en: "PINNED" })}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <Link
-                    to={`/berita/${generateSlug(
-                      featuredNews.title,
-                      featuredNews.slug
-                    )}`}
-                    onClick={() => {
-                      try {
-                        sessionStorage.setItem(
-                          BERITA_SESSION_KEY,
-                          JSON.stringify({ page: 1, articleId: "featured" })
-                        );
-                      } catch (_) { /* ignore */ }
-                    }}
-                  >
-                    <h2 className="font-heading font-normal text-3xl sm:text-4xl text-heading leading-tight hover:text-primary transition-colors">
-                      {featuredNews.title}
-                    </h2>
+                      whileInView={{
+                        opacity: 1,
+                        scale: 1,
+                        filter: "grayscale(0%) blur(0px)",
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        ease: "easeOut",
+                      }}
+                      viewport={viewportSettings}
+                      className="w-full h-full"
+                    >
+                      <Img
+                        eager
+                        src={featuredImageSrc}
+                        alt={featuredNews.title}
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 rounded-md"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </motion.div>
                   </Link>
                 </div>
 
-                <p className="text-sm sm:text-base text-body leading-relaxed pt-1 line-clamp-4">
-                  {featuredNews.content}
-                </p>
-
-                <div className="pt-2">
-                  <Link
-                    to={`/berita/${generateSlug(
-                      featuredNews.title,
-                      featuredNews.slug
-                    )}`}
-                    onClick={() => {
-                      try {
-                        sessionStorage.setItem(
-                          BERITA_SESSION_KEY,
-                          JSON.stringify({ page: 1, articleId: "featured" })
-                        );
-                      } catch (_) { /* ignore */ }
-                    }}
-                    className="inline-flex items-center text-xs font-bold tracking-wider text-primary hover:text-[#680000] uppercase transition-colors group/btn"
-                  >
-                    <span>
-                      {t(halaman.bacaSelengkapnya)}
+                {/* CONTENT */}
+                <div className="lg:col-span-6 space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-bold tracking-wider text-primary uppercase">
+                      {t(halaman.beritaUtama)} · {featuredDate || "OKTOBER 2022"}
                     </span>
+                    {featuredIsPinned && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider uppercase bg-primary text-white px-2 py-0.5 rounded-xs">
+                        <TbPinFilled className="text-xs" />
+                        {t({ id: "DIPIN", en: "PINNED" })}
+                      </span>
+                    )}
+                  </div>
 
-                    <span className="ml-1.5 transition-transform group-hover/btn:translate-x-1">
-                      →
-                    </span>
-                  </Link>
+                  <div>
+                    <Link
+                      to={`/berita/${featuredSlug}`}
+                      onClick={() => {
+                        try {
+                          sessionStorage.setItem(
+                            BERITA_SESSION_KEY,
+                            JSON.stringify({ page: 1, articleId: "featured" })
+                          );
+                        } catch (_) { /* ignore */ }
+                      }}
+                    >
+                      <h2 className="font-heading font-normal text-3xl sm:text-4xl text-heading leading-tight hover:text-primary transition-colors">
+                        {featuredNews.title}
+                      </h2>
+                    </Link>
+                  </div>
+
+                  <p className="text-sm sm:text-base text-body leading-relaxed pt-1 line-clamp-4">
+                    {featuredContent}
+                  </p>
+
+                  <div className="pt-2">
+                    <Link
+                      to={`/berita/${featuredSlug}`}
+                      onClick={() => {
+                        try {
+                          sessionStorage.setItem(
+                            BERITA_SESSION_KEY,
+                            JSON.stringify({ page: 1, articleId: "featured" })
+                          );
+                        } catch (_) { /* ignore */ }
+                      }}
+                      className="inline-flex items-center text-xs font-bold tracking-wider text-primary hover:text-[#680000] uppercase transition-colors group/btn"
+                    >
+                      <span>{t(halaman.bacaSelengkapnya)}</span>
+                      <span className="ml-1.5 transition-transform group-hover/btn:translate-x-1">
+                        →
+                      </span>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </section>
-          )}
+              </section>
+            );
+          })()}
 
           {/* =====================================================
               MORE NEWS
@@ -684,7 +684,12 @@ export default function BeritaIndex() {
 
               <div className="divide-y divide-gray-200">
                 {currentNewsList.map((news) => {
-                  const newsSlug = generateSlug(news.title, news.slug);
+                  const newsSlug = news.slug || generateSlug(news.title, news.slug);
+                  const newsTags = Array.isArray(news.tags) ? news.tags.join(", ") : (news.tags || "Berita");
+                  const newsDate = formatBeritaDate(news.tanggal, lang);
+                  const newsIsPinned = Boolean(news.isPinned || news.pinned);
+                  const newsContent = news.plainContent || (typeof news.content === "string" ? news.content : "");
+
                   return (
                     <article
                       key={news.id}
@@ -693,10 +698,9 @@ export default function BeritaIndex() {
                     >
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-xs text-gray-500">
-                          {news.tanggal || "Oktober 2022"} ·{" "}
-                          {news.tags || "News"}
+                          {newsDate || "Oktober 2022"} · {newsTags}
                         </span>
-                        {news.pinned && (
+                        {newsIsPinned && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-wider uppercase bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded-xs">
                             <TbPinFilled className="text-[9px]" />
                             {t({ id: "DIPIN", en: "PINNED" })}
@@ -721,7 +725,7 @@ export default function BeritaIndex() {
                       </Link>
 
                       <p className="text-sm sm:text-[15px] text-body leading-relaxed max-w-5xl line-clamp-3">
-                        {news.content}
+                        {newsContent}
                       </p>
                     </article>
                   );

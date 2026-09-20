@@ -26,7 +26,7 @@ import {
   blocksToPlainText,
 } from "../../utils/pengumumanFormatters";
 import { calculateReadingTime } from "../../utils/format";
-import StrapiArticleBlocks from "./v2/components/StrapiArticleBlocks";
+import StrapiArticleBlocks from "../../components/Strapi/StrapiArticleBlocks";
 
 const viewportSettings = { once: true, amount: 0.15 };
 
