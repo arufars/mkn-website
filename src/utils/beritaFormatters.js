@@ -117,7 +117,7 @@ export function normalizeBerita(item) {
 
   const plainContent = blocksToPlainText(item.content);
   const imageUrl = getStrapiMediaUrl(item.gambar);
-  const slug = item.slug || generateSlug(item.title, item.documentId || String(item.id));
+  const slug = item.slug || generateSlug(item.title);
 
   return {
     id: item.id,
@@ -139,6 +139,7 @@ export function normalizeBerita(item) {
     galeri,
     sumber,
     isPinned: Boolean(item.isPinned || item.pinned),
+    pinned: Boolean(item.isPinned || item.pinned),
     locale: item.locale || "id",
     source: "strapi",
     lampiran: [],
@@ -199,7 +200,7 @@ export function normalizeLocalBerita(item) {
       : blocksToPlainText(item.content);
 
   const localImg = getBeritaImage(item.gambar);
-  const slug = generateSlug(item.title, item.slug || String(item.id));
+  const slug = generateSlug(item.title, item.slug);
 
   return {
     id: item.id,
@@ -221,6 +222,7 @@ export function normalizeLocalBerita(item) {
     galeri,
     sumber,
     isPinned: Boolean(item.pinned || item.isPinned),
+    pinned: Boolean(item.pinned || item.isPinned),
     locale: item.locale || "id",
     source: "local",
     lampiran: Array.isArray(item.lampiran) ? item.lampiran : [],

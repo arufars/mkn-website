@@ -4,11 +4,13 @@ import {
   STRAPI_ENDPOINTS,
   STRAPI_POPULATE,
   STRAPI_DEFAULTS,
+  STRAPI_SORT,
 } from "../config/strapi.js";
 import {
   normalizePengumuman,
   normalizeLocalPengumuman,
 } from "../utils/pengumumanFormatters.js";
+import { generateSlug } from "../utils/slugHelper.js";
 import localBeritaData from "../data/berita.json" with { type: "json" };
 
 /**
@@ -97,7 +99,7 @@ export async function getHybridPengumumanList({ locale = "id" } = {}) {
   try {
     const query = buildListQuery({
       populate: STRAPI_POPULATE.PENGUMUMAN,
-      sort: ["tanggal:desc", "createdAt:desc"],
+      sort: STRAPI_SORT.PENGUMUMAN_DEFAULT,
       locale: activeLocale,
     });
 
@@ -109,7 +111,7 @@ export async function getHybridPengumumanList({ locale = "id" } = {}) {
       try {
         const fallbackQuery = buildListQuery({
           populate: STRAPI_POPULATE.PENGUMUMAN,
-          sort: ["tanggal:desc", "createdAt:desc"],
+          sort: STRAPI_SORT.PENGUMUMAN_DEFAULT,
           locale: STRAPI_DEFAULTS.LOCALE,
         });
         const fbRes = await strapiFetch(
@@ -132,14 +134,16 @@ export async function getHybridPengumumanList({ locale = "id" } = {}) {
     return strapiItems;
   }
 
-  // 3. Ambil data pengumuman dari file lokal (berita.json)
-  const localRaw = (localBeritaData || []).filter(
-    (item) => item.tags === "Pengumuman"
-  );
+  // 3. Ambil data pengumuman dari file lokal (berita.json) sesuai bahasa aktif
+  const localRaw = (localBeritaData || []).filter((item) => {
+    if (item.tags !== "Pengumuman") return false;
+    const itemLocale = item.locale || "id";
+    return itemLocale === activeLocale;
+  });
   const localItems = localRaw.map(normalizeLocalPengumuman);
 
-  // 4. Deduplikasi cerdas (Prioritas Utama: TITLE MATCHING)
-  // Strapi menang jika judul sama dengan data lokal
+  // 4. Deduplikasi cerdas (Prioritas Utama: TITLE / SLUG / ID MATCHING)
+  // Strapi menang jika judul, slug, atau ID sama dengan data lokal
   const strapiTitles = new Set(
     strapiItems
       .map((item) => normalizeTitleKey(item.title))
@@ -150,16 +154,46 @@ export async function getHybridPengumumanList({ locale = "id" } = {}) {
       .map((item) => (item.slug || "").toLowerCase().trim())
       .filter(Boolean)
   );
+  const strapiIds = new Set(
+    strapiItems
+      .map((item) => String(item.id || ""))
+      .filter(Boolean)
+  );
 
-  // Saring data lokal: buang yang sudah ada di Strapi (berdasarkan title utama atau slug)
+  // Saring data lokal: buang yang sudah ada di Strapi (berdasarkan title utama, slug, atau ID)
+  // Sekaligus sinkronkan status isPinned dari data lokal ke Strapi jika di Strapi belum diatur (default false/null)
+  localItems.forEach((local) => {
+    if (Boolean(local.isPinned || local.pinned)) {
+      const titleKey = normalizeTitleKey(local.title);
+      const slugKey = (local.slug || "").toLowerCase().trim();
+      const idKey = String(local.id || "");
+      const match = strapiItems.find((s) => {
+        const sTitle = normalizeTitleKey(s.title);
+        const sSlug = (s.slug || "").toLowerCase().trim();
+        const sId = String(s.id || "");
+        return (
+          (titleKey && sTitle === titleKey) ||
+          (slugKey && sSlug === slugKey) ||
+          (idKey && sId === idKey)
+        );
+      });
+      if (match && !Boolean(match.isPinned || match.pinned)) {
+        match.isPinned = true;
+        match.pinned = true;
+      }
+    }
+  });
+
   const filteredLocalItems = localItems.filter((local) => {
     const titleKey = normalizeTitleKey(local.title);
     const slugKey = (local.slug || "").toLowerCase().trim();
+    const idKey = String(local.id || "");
 
     const isDuplicateTitle = Boolean(titleKey && strapiTitles.has(titleKey));
     const isDuplicateSlug = Boolean(slugKey && strapiSlugs.has(slugKey));
+    const isDuplicateId = Boolean(idKey && strapiIds.has(idKey));
 
-    return !isDuplicateTitle && !isDuplicateSlug;
+    return !isDuplicateTitle && !isDuplicateSlug && !isDuplicateId;
   });
 
   // 5. Gabungkan data Strapi (terdepan) + data lokal yang tersisa
@@ -168,8 +202,10 @@ export async function getHybridPengumumanList({ locale = "id" } = {}) {
   // 6. Urutkan: Pinned lebih dulu, lalu Tanggal Terbaru
   combined.sort((a, b) => {
     // Pinned selalu paling atas
-    if (a.isPinned && !b.isPinned) return -1;
-    if (!a.isPinned && b.isPinned) return 1;
+    const aPin = Boolean(a.isPinned || a.pinned);
+    const bPin = Boolean(b.isPinned || b.pinned);
+    if (aPin && !bPin) return -1;
+    if (!aPin && bPin) return 1;
 
     // Tanggal terbaru lebih dulu
     const timeA = parseDateToTimestamp(a.tanggal);
@@ -275,19 +311,23 @@ export async function getHybridPengumumanBySlug(
     );
   }
 
-  // 2. Jika tidak ditemukan di Strapi (atau Strapi offline), cari di berkas lokal
+  // 2. Jika tidak ditemukan di Strapi (atau Strapi offline), cari di berkas lokal sesuai bahasa aktif
   if (ENABLE_LOCAL_FALLBACK) {
-    const localRaw = (localBeritaData || []).filter(
-      (item) => item.tags === "Pengumuman"
-    );
+    const localRaw = (localBeritaData || []).filter((item) => {
+      if (item.tags !== "Pengumuman") return false;
+      const itemLocale = item.locale || "id";
+      return itemLocale === activeLocale;
+    });
 
     const matchLower = rawParam.toLowerCase();
 
     const localFound = localRaw.find((item) => {
+      const generated = generateSlug(item.title, item.slug).toLowerCase();
       const slugMatch = (item.slug || "").toLowerCase() === matchLower;
       const idMatch = String(item.id || "").toLowerCase() === matchLower;
+      const baseIdMatch = String(item.id || "").replace(/-en$/, "").toLowerCase() === matchLower;
       const titleMatch = (item.title || "").toLowerCase() === matchLower;
-      return slugMatch || idMatch || titleMatch;
+      return generated === matchLower || slugMatch || idMatch || baseIdMatch || titleMatch;
     });
 
     if (localFound) {
@@ -306,6 +346,22 @@ export async function getHybridPengumumanBySlug(
       } catch (_) {}
 
       return normalizeLocalPengumuman(localFound);
+    }
+
+    // Fallback: jika bahasa aktif "en" tapi tidak ada di lokal/strapi, cari versi "id"
+    if (activeLocale !== STRAPI_DEFAULTS.LOCALE) {
+      const fallbackLocal = (localBeritaData || []).filter(
+        (item) => item.tags === "Pengumuman" && (item.locale || "id") === STRAPI_DEFAULTS.LOCALE
+      );
+      const fallbackFound = fallbackLocal.find((item) => {
+        const generated = generateSlug(item.title, item.slug).toLowerCase();
+        const slugMatch = (item.slug || "").toLowerCase() === matchLower;
+        const idMatch = String(item.id || "").toLowerCase() === matchLower;
+        return generated === matchLower || slugMatch || idMatch;
+      });
+      if (fallbackFound) {
+        return normalizeLocalPengumuman(fallbackFound);
+      }
     }
   }
 

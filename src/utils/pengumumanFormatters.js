@@ -3,6 +3,7 @@ import {
   blocksToPlainText,
   formatStrapiDate,
 } from "./strapiHelpers.js";
+import { generateSlug } from "./slugHelper.js";
 
 // Re-export fungsi utilitas global Strapi agar tetap backward-compatible
 export { getStrapiMediaUrl, blocksToPlainText, formatStrapiDate };
@@ -132,7 +133,7 @@ export function normalizePengumuman(item) {
     id: item.id,
     documentId: item.documentId,
     title: item.title || "",
-    slug: item.slug || item.documentId || String(item.id),
+    slug: item.slug || generateSlug(item.title) || item.documentId || String(item.id),
     tanggal: item.tanggal ? item.tanggal.split("T")[0] : "",
     berlakuHingga: item.berlakuHingga
       ? item.berlakuHingga.split("T")[0]
@@ -151,6 +152,7 @@ export function normalizePengumuman(item) {
     locale: item.locale || "id",
     source: "strapi",
     isPinned: Boolean(item.isPinned || item.pinned),
+    pinned: Boolean(item.isPinned || item.pinned),
   };
 }
 
@@ -183,7 +185,7 @@ export function normalizeLocalPengumuman(item) {
     id: item.id,
     documentId: item.documentId || String(item.id),
     title: item.title || "",
-    slug: item.slug || String(item.id),
+    slug: generateSlug(item.title, item.slug),
     tanggal: item.tanggal || "",
     berlakuHingga: item.berlakuHingga || "",
     content: item.content || "",
@@ -202,5 +204,6 @@ export function normalizeLocalPengumuman(item) {
     locale: item.locale || "id",
     source: "local",
     isPinned: Boolean(item.pinned || item.isPinned),
+    pinned: Boolean(item.pinned || item.isPinned),
   };
 }

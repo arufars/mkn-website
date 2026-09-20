@@ -16,6 +16,7 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import { FaWhatsapp, FaTwitter } from "react-icons/fa";
+import { TbPinFilled } from "react-icons/tb";
 
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
@@ -231,13 +232,24 @@ export default function PengumumanDetail() {
                 animate="visible"
                 className="space-y-4 pb-6 border-b border-gray-200"
               >
-                {/* Badge Kategori */}
-                <motion.span
-                  variants={itemVariants}
-                  className="inline-block bg-red-50 text-primary border border-primary/20 text-xs font-bold px-3 py-1 uppercase tracking-wider rounded-xs"
-                >
-                  {item.kategori || t({ id: "Pengumuman", en: "Announcement" })}
-                </motion.span>
+                {/* Badge Kategori & DIPIN */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {Boolean(item.isPinned || item.pinned) && (
+                    <motion.span
+                      variants={itemVariants}
+                      className="inline-flex items-center gap-1 bg-primary text-white text-xs font-bold px-2.5 py-1 uppercase tracking-wider rounded-xs"
+                    >
+                      <TbPinFilled className="text-xs" />
+                      {t({ id: "DIPIN", en: "PINNED" })}
+                    </motion.span>
+                  )}
+                  <motion.span
+                    variants={itemVariants}
+                    className="inline-block bg-red-50 text-primary border border-primary/20 text-xs font-bold px-3 py-1 uppercase tracking-wider rounded-xs"
+                  >
+                    {item.kategori || t({ id: "Pengumuman", en: "Announcement" })}
+                  </motion.span>
+                </div>
 
                 {/* Judul Pengumuman */}
                 <motion.h1
