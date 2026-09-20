@@ -15,9 +15,7 @@ export const STRAPI_BASE_URL =
 export const STRAPI_ENDPOINTS = {
   BERITA: "/api/beritas",
   AGENDA: "/api/agenda",
-  AGENDA_V2: "/api/agenda",
   PENGUMUMAN: "/api/pengumumen",
-  PENGUMUMAN_V2: "/api/pengumumen",
   KATEGORI: "/api/kategoris",
   MEDIA: "/api/upload/files",
 };
@@ -40,6 +38,7 @@ export const STRAPI_DEFAULTS = {
 export const STRAPI_SORT = {
   // Prioritaskan artikel yang di-pin, lalu tanggal acara/berita terbaru, lalu waktu entri dibuat
   BERITA_DEFAULT: ["isPinned:desc", "tanggal:desc", "createdAt:desc"],
+  PENGUMUMAN_DEFAULT: ["isPinned:desc", "tanggal:desc", "createdAt:desc"],
   TERBARU: ["tanggal:desc", "createdAt:desc"],
   TERLAMA: ["tanggal:asc", "createdAt:asc"],
   AGENDA_DEFAULT: ["pinned:desc", "date:asc", "createdAt:desc"],
@@ -88,22 +87,9 @@ export const STRAPI_POPULATE = {
     },
   },
 
-  AGENDA_V2_FULL: {
-    image: {
-      populate: "*",
-    },
-  },
-
-  AGENDA_V2_CARD: {
-    image: {
-      populate: "*",
-    },
-  },
-
   // Populate lengkap untuk Pengumuman (Strapi /api/pengumumen)
   // Menggunakan wildcard '*' agar seluruh relasi & media otomatis terambil secara dinamis
   PENGUMUMAN: "*",
-  PENGUMUMAN_V2: "*",
 };
 
 export default {

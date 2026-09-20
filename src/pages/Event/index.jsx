@@ -8,7 +8,6 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import EventCalendarSidebar from "../../components/Event/EventCalendarSidebar";
 import EventCard from "../../components/Event/EventCard";
-import EventDetailModal from "../../components/Event/EventDetailModal";
 import SubmitEventModal from "../../components/Event/SubmitEventModal";
 import { eventCategories } from "../../data/eventData";
 import { getHybridEventList } from "../../services/eventService";
@@ -86,7 +85,6 @@ export default function EventPage() {
   const [viewMode, setViewMode] = useState("all"); // "day" or "all"
 
   // Modal states
-  const [activeEventModal, setActiveEventModal] = useState(null);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
   // Fetch data hybrid (Strapi CMS + Local)
@@ -550,14 +548,6 @@ export default function EventPage() {
             )}
           </div>
           </div>
-
-        {/* Modal Detail Event */}
-        {activeEventModal && (
-          <EventDetailModal
-            event={activeEventModal}
-            onClose={() => setActiveEventModal(null)}
-          />
-        )}
 
         {/* Modal Submit Event */}
         <SubmitEventModal

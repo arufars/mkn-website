@@ -31,24 +31,6 @@ const metaHome = {
 
 export default function Home() {
   const t = useT();
-  useEffect(() => {
-    const fetchJadwal = async () => {
-      try {
-        const res = await fetch(
-          "http://localhost:1337/api/pengumumen?populate=*"
-        );
-
-        const json = await res.json();
-
-        console.log(json);
-        
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchJadwal();
-  }, []);
 
   return (
     <>

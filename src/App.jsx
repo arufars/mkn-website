@@ -142,15 +142,9 @@ export default function App() {
         {/* Berita — catalog & detail routes */}
         <Route path="/berita" element={<BeritaIndex />} />
         <Route path="/berita/:slug" element={<BeritaDetail />} />
-        <Route path="/berita-v2" element={<Navigate to="/berita" replace />} />
-        <Route path="/berita-v2/:title" element={<BeritaV2Redirect />} />
-        {/* Pengumuman Terpadu: List diarahkan ke /berita?kategori=pengumuman, Detail di /pengumuman/:slug */}
         <Route path="/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
         <Route path="/pengumuman/:slug" element={<PengumumanDetail />} />
-        <Route path="/pengumuman-v2" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
-        <Route path="/pengumuman-v2/:slug" element={<PengumumanDetail />} />
-        <Route path="/berita-v2/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
-        <Route path="/berita-v2/pengumuman/:slug" element={<PengumumanDetail />} />
+
 
         {/* Akademik — nested routes */}
         <Route path="/akademik" element={<AkademikLayout />}>
