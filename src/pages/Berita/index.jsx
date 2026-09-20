@@ -17,6 +17,7 @@ import Breadcrumb from "../../components/ui/Breadcrumb";
 import { useT, useLanguage } from "../../i18n/languageContext";
 import { useUi } from "../../i18n/useUi";
 import { berita as beritaTerurut, pengumuman as pengumumanTerurut } from "../../data/beritaSelectors";
+import { getHybridPengumumanList } from "../../services/pengumumanService";
 import { getBeritaImage } from "../../utils/imageResolver";
 import { generateSlug } from "../../utils/slugHelper";
 import Img from "../../components/ui/Img";
@@ -142,12 +143,20 @@ const KATEGORI_TABS = [
  */
 function PengumumanCard({ item }) {
   const t = useT();
-  // getBeritaImage() punya fallback ke gambar berita utama saat path tidak
-  // ketemu, jadi "tanpa gambar" harus ditentukan dari datanya, bukan dari
-  // hasil resolusi path.
-  const itemImage = item.gambar ? getBeritaImage(item.gambar) : "";
-  const itemSlug = generateSlug(item.title, item.slug);
+  // Resolusi gambar: URL Strapi atau aset lokal
+  const itemImage = item.gambar
+    ? typeof item.gambar === "string" &&
+      (item.gambar.startsWith("http") || item.gambar.startsWith("/"))
+      ? item.gambar
+      : getBeritaImage(item.gambar)
+    : "";
+  const itemSlug = item.slug || generateSlug(item.title, item.slug);
+  const detailUrl = `/pengumuman/${encodeURIComponent(itemSlug)}`;
   const lampiran = Array.isArray(item.lampiran) ? item.lampiran : [];
+  const summaryText =
+    typeof item.content === "string"
+      ? item.content
+      : item.plainContent || "";
 
   return (
     <motion.article
@@ -158,7 +167,7 @@ function PengumumanCard({ item }) {
       {itemImage ? (
         /* Varian bergambar: kolom flyer di kiri (di atas pada layar kecil) */
         <Link
-          to={`/berita/${itemSlug}`}
+          to={detailUrl}
           tabIndex={-1}
           aria-hidden="true"
           className="relative shrink-0 overflow-hidden bg-gray-100 border-b md:border-b-0 md:border-r border-gray-200 h-48 sm:h-56 md:h-auto md:w-64 lg:w-72"
@@ -188,8 +197,7 @@ function PengumumanCard({ item }) {
       {/* Konten & Lampiran Pengumuman */}
       <div className="p-5 sm:p-6 lg:p-7 flex-grow min-w-0 flex flex-col justify-between gap-4">
         <div className="space-y-3">
-          {/* Metadata bar — kategori ikut di sini supaya entri tanpa flyer
-              tetap menampilkannya */}
+          {/* Metadata bar */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-gray-500">
             {item.kategori && (
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary bg-red-50 border border-primary/20 px-2 py-0.5 rounded-xs">
@@ -213,12 +221,11 @@ function PengumumanCard({ item }) {
 
           {/* Judul Pengumuman */}
           <h3 className="font-heading text-xl sm:text-2xl text-heading font-normal leading-snug group-hover:text-primary transition-colors">
-            <Link to={`/berita/${itemSlug}`}>{item.title}</Link>
+            <Link to={detailUrl}>{item.title}</Link>
           </h3>
 
-          {/* Ringkasan Konten — kartu tanpa flyer punya ruang lebih lega,
-              jadi ringkasannya boleh satu baris lebih panjang */}
-          {item.content && (
+          {/* Ringkasan Konten */}
+          {summaryText && (
             <p
               className={`text-sm text-body/80 leading-relaxed ${
                 itemImage
@@ -226,7 +233,7 @@ function PengumumanCard({ item }) {
                   : "line-clamp-3 sm:line-clamp-4"
               }`}
             >
-              {item.content}
+              {summaryText}
             </p>
           )}
         </div>
@@ -270,7 +277,7 @@ function PengumumanCard({ item }) {
 
           {/* Tautan detail */}
           <Link
-            to={`/berita/${itemSlug}`}
+            to={detailUrl}
             className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary hover:text-[#680000] transition-colors shrink-0 self-start sm:self-auto"
           >
             <span>{t({ id: "Selengkapnya", en: "Read more" })}</span>
@@ -308,10 +315,25 @@ export default function BeritaIndex() {
 
   const isBerita = kategori === "berita";
 
-  // Pemilahan dan pengurutannya kini tinggal di data/beritaSelectors, dipakai
-  // bersama section Berita dan Pengumuman di Beranda.
   const beritaItems = beritaTerurut;
-  const pengumumanItems = pengumumanTerurut;
+  const [pengumumanItems, setPengumumanItems] = useState(pengumumanTerurut);
+
+  useEffect(() => {
+    let isMounted = true;
+    getHybridPengumumanList({ locale: lang })
+      .then((data) => {
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setPengumumanItems(data);
+        }
+      })
+      .catch((err) => {
+        console.warn("[BeritaIndex] Fallback to local pengumuman:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lang]);
 
   const handleKategoriChange = (key) => {
     setSearchParams(key === "berita" ? {} : { kategori: key });

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
@@ -9,10 +10,12 @@ import {
   getPinnedBerita,
   getPinnedPengumuman,
 } from "../../data/beritaSelectors";
+import { getHybridPengumumanList } from "../../services/pengumumanService";
 import { getBeritaImage } from "../../utils/imageResolver";
 import { generateSlug } from "../../utils/slugHelper";
 import Img from "../ui/Img";
 import { useUi } from "../../i18n/useUi";
+import { useLanguage } from "../../i18n/languageContext";
 
 const viewportSettings = {
   once: true,
@@ -61,27 +64,61 @@ const cardVariants = {
 
 export default function Announcement() {
   const ui = useUi();
+  const { lang } = useLanguage();
+  const [hybridPengumuman, setHybridPengumuman] = useState(pengumuman);
+
+  useEffect(() => {
+    let isMounted = true;
+    getHybridPengumumanList({ locale: lang })
+      .then((items) => {
+        if (isMounted && Array.isArray(items) && items.length > 0) {
+          setHybridPengumuman(items);
+        }
+      })
+      .catch((err) => {
+        console.warn("[Announcement] Fallback to local pengumuman:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lang]);
 
   // Bila belum ada pengumuman, section ini fallback ke berita agar tidak kosong.
-  // Featured: item yang dipin lebih dulu, fallback ke item terbaru.
-  const displayList = pengumuman.length > 0 ? pengumuman : berita;
+  const displayList = hybridPengumuman.length > 0 ? hybridPengumuman : berita;
+  const isAnnouncement = hybridPengumuman.length > 0;
+
   const pinnedFeatured =
-    pengumuman.length > 0
-      ? getPinnedPengumuman() ?? pengumuman[0]
+    hybridPengumuman.length > 0
+      ? hybridPengumuman.find((x) => x.isPinned || x.pinned) ?? hybridPengumuman[0]
       : getPinnedBerita() ?? berita[0];
 
   const featured = pinnedFeatured;
-  const featuredIsPinned = featured?.pinned === true;
+  const featuredIsPinned = Boolean(featured?.isPinned || featured?.pinned);
 
   // Sisi kanan: 3 item berikutnya dari daftar (kecuali featured)
   const sideArticles = displayList
     .filter((item) => item !== featured)
     .slice(0, 3);
 
-  // Tidak semua pengumuman menyertakan flyer. Tanpa gambar, kartu utama jadi
-  // jauh lebih pendek daripada daftar di kolom kanan, jadi tampilannya
-  // disesuaikan agar tepi bawah kedua kolom tetap sejajar.
-  const hasFlyer = Boolean(featured.gambar);
+  // Tidak semua pengumuman menyertakan flyer
+  const hasFlyer = Boolean(featured?.gambar);
+
+  const resolveImage = (gambar) => {
+    if (!gambar) return "";
+    if (typeof gambar === "string" && (gambar.startsWith("http") || gambar.startsWith("/"))) {
+      return gambar;
+    }
+    return getBeritaImage(gambar);
+  };
+
+  const getArticleUrl = (item) => {
+    if (!item) return "/berita?kategori=pengumuman";
+    const slug = item.slug || generateSlug(item.title, item.slug);
+    return isAnnouncement
+      ? `/pengumuman/${encodeURIComponent(slug)}`
+      : `/berita/${encodeURIComponent(slug)}`;
+  };
 
   return (
     <section className="w-full bg-hero-headingy font-body py-16 sm:py-20 border-b border-gray-200 overflow-hidden">
@@ -128,10 +165,7 @@ export default function Announcement() {
             {/* Featured Announcement Image */}
             {hasFlyer && (
               <Link
-                to={`/berita/${generateSlug(
-                  featured.title,
-                  featured.slug
-                )}`}
+                to={getArticleUrl(featured)}
                 className="overflow-hidden rounded-xs bg-gray-100 border border-gray-200 aspect-16/9 sm:aspect-21/9 relative block"
               >
                 <motion.div
@@ -154,7 +188,7 @@ export default function Announcement() {
                   className="w-full h-full"
                 >
                   <Img
-                    src={getBeritaImage(featured.gambar)}
+                    src={resolveImage(featured.gambar)}
                     alt={featured.title}
                     className="
                       w-full
@@ -245,7 +279,7 @@ export default function Announcement() {
               {/* Judul */}
               <motion.div variants={itemVariants}>
                 <Link
-                  to={`/berita/${generateSlug(featured.title, featured.slug)}`}
+                  to={getArticleUrl(featured)}
                 >
                   <h3 className="font-heading font-normal text-2xl sm:text-3xl text-heading leading-snug group-hover:text-primary transition-colors">
                     {featured.title}
@@ -253,16 +287,16 @@ export default function Announcement() {
                 </Link>
               </motion.div>
 
-              {/* Ringkasan — tanpa flyer ada ruang vertikal lebih, jadi
-                  ringkasannya boleh lebih panjang: mengisi tinggi kolom dengan
-                  isi, bukan dengan ruang kosong. */}
+              {/* Ringkasan */}
               <motion.p
                 variants={itemVariants}
                 className={`mt-3 text-sm sm:text-base text-body leading-relaxed max-w-3xl ${
                   hasFlyer ? "line-clamp-3" : "line-clamp-6"
                 }`}
               >
-                {featured.content}
+                {typeof featured.content === "string"
+                  ? featured.content
+                  : featured.plainContent || ""}
               </motion.p>
 
               {/* Lampiran */}
@@ -329,10 +363,7 @@ export default function Announcement() {
                 {/* Title */}
                 <motion.div variants={itemVariants}>
                   <Link
-                    to={`/berita/${generateSlug(
-                      article.title,
-                      article.slug
-                    )}`}
+                    to={getArticleUrl(article)}
                   >
                     <h4 className="font-heading font-normal text-lg text-heading leading-snug group-hover:text-primary transition-colors cursor-pointer">
                       {article.title}
@@ -345,7 +376,9 @@ export default function Announcement() {
                   variants={itemVariants}
                   className="text-sm text-body leading-relaxed line-clamp-2"
                 >
-                  {article.content}
+                  {typeof article.content === "string"
+                    ? article.content
+                    : article.plainContent || ""}
                 </motion.p>
 
                 {/* Attachment */}

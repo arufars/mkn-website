@@ -1,43 +1,11 @@
-import { STRAPI_BASE_URL } from "../../../../config/strapi";
+import {
+  getStrapiMediaUrl,
+  blocksToPlainText,
+  formatStrapiDate,
+} from "./strapiHelpers.js";
 
-/**
- * Mendapatkan URL absolut untuk berkas media Strapi (lokal atau CDN)
- * @param {object|string|null} media
- * @returns {string}
- */
-export function getStrapiMediaUrl(media) {
-  if (!media) return "";
-  if (typeof media === "string") {
-    return media.startsWith("http") ? media : `${STRAPI_BASE_URL}${media}`;
-  }
-  const url =
-    media.formats?.large?.url ||
-    media.formats?.medium?.url ||
-    media.formats?.small?.url ||
-    media.url;
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${STRAPI_BASE_URL}${url}`;
-}
-
-/**
- * Ekstraksi teks polos dari struktur Strapi Blocks (Rich Text)
- * @param {Array|string|null} blocks
- * @returns {string}
- */
-export function blocksToPlainText(blocks) {
-  if (!blocks) return "";
-  if (typeof blocks === "string") return blocks;
-  if (!Array.isArray(blocks)) return "";
-  return blocks
-    .map((block) => {
-      if (block?.children && Array.isArray(block.children)) {
-        return block.children.map((c) => c?.text || "").join("");
-      }
-      return "";
-    })
-    .filter(Boolean)
-    .join("\n\n");
-}
+// Re-export fungsi utilitas global Strapi agar tetap backward-compatible
+export { getStrapiMediaUrl, blocksToPlainText, formatStrapiDate };
 
 /**
  * Format tanggal pengumuman menjadi teks yang mudah dibaca
@@ -181,5 +149,58 @@ export function normalizePengumuman(item) {
     gambar: item.gambar ? getStrapiMediaUrl(item.gambar) : null,
     lampiran,
     locale: item.locale || "id",
+    source: "strapi",
+    isPinned: Boolean(item.isPinned || item.pinned),
+  };
+}
+
+/**
+ * Normalisasi objek pengumuman dari berkas data lokal (berita.json)
+ * agar memiliki kontrak data yang identik dengan objek dari Strapi CMS
+ * @param {object} item
+ * @returns {object|null}
+ */
+export function normalizeLocalPengumuman(item) {
+  if (!item) return null;
+
+  const rawLampiran = Array.isArray(item.lampiran) ? item.lampiran : [];
+  const lampiran = rawLampiran.map((file, idx) => ({
+    id: file.id || `local-att-${item.id || ""}-${idx}`,
+    documentId: file.documentId || null,
+    nama: file.nama || file.name || "lampiran.pdf",
+    judul: file.judul || file.caption || file.nama || "Berkas Pengumuman",
+    format: file.format || (file.url?.endsWith(".pdf") ? "PDF" : "BERKAS"),
+    ukuran: file.ukuran || "",
+    url: file.url || "",
+  }));
+
+  const plainContent =
+    typeof item.content === "string"
+      ? item.content
+      : blocksToPlainText(item.content);
+
+  return {
+    id: item.id,
+    documentId: item.documentId || String(item.id),
+    title: item.title || "",
+    slug: item.slug || String(item.id),
+    tanggal: item.tanggal || "",
+    berlakuHingga: item.berlakuHingga || "",
+    content: item.content || "",
+    plainContent,
+    author: item.author || "admkn",
+    authorRole: {
+      id: "Redaksi MKn UNISSULA",
+      en: "MKn UNISSULA Editorial",
+    },
+    tags: Array.isArray(item.tags)
+      ? item.tags
+      : [item.tags || "Pengumuman"],
+    kategori: item.kategori || "Pengumuman",
+    gambar: item.gambar || null,
+    lampiran,
+    locale: item.locale || "id",
+    source: "local",
+    isPinned: Boolean(item.pinned || item.isPinned),
   };
 }

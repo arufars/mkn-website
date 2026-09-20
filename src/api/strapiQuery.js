@@ -1,5 +1,5 @@
 import qs from "qs";
-import { STRAPI_DEFAULTS, STRAPI_QS_OPTIONS } from "../config/strapi";
+import { STRAPI_DEFAULTS, STRAPI_QS_OPTIONS } from "../config/strapi.js";
 
 /**
  * =========================================================

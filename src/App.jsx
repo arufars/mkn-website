@@ -19,8 +19,7 @@ const BeritaIndex = lazy(() => import("./pages/Berita/index"));
 const BeritaDetail = lazy(() => import("./pages/Berita/BeritaDetail"));
 const BeritaV2 = lazy(() => import("./pages/Berita/v2/BeritaV2Index"));
 const BeritaV2Detail = lazy(() => import("./pages/Berita/v2/BeritaV2Detail"));
-const PengumumanV2Index = lazy(() => import("./pages/Berita/v2-pengumuman/PengumumanV2Index"));
-const PengumumanV2Detail = lazy(() => import("./pages/Berita/v2-pengumuman/PengumumanV2Detail"));
+const PengumumanDetail = lazy(() => import("./pages/Berita/PengumumanDetail"));
 
 const AkademikLayout = lazy(() => import("./pages/Akademik/index"));
 const Kurikulum = lazy(() => import("./pages/Akademik/Kurikulum"));
@@ -140,13 +139,13 @@ export default function App() {
         <Route path="/berita/:slug" element={<BeritaDetail />} />
         <Route path="/berita-v2" element={<BeritaV2 />} />
         <Route path="/berita-v2/:title" element={<BeritaV2Detail />} />
+        {/* Pengumuman Terpadu: List diarahkan ke /berita?kategori=pengumuman, Detail di /pengumuman/:slug */}
         <Route path="/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
-
-        {/* Pengumuman V2 — Strapi CMS */}
-        <Route path="/pengumuman-v2" element={<PengumumanV2Index />} />
-        <Route path="/pengumuman-v2/:slug" element={<PengumumanV2Detail />} />
-        <Route path="/berita-v2/pengumuman" element={<PengumumanV2Index />} />
-        <Route path="/berita-v2/pengumuman/:slug" element={<PengumumanV2Detail />} />
+        <Route path="/pengumuman/:slug" element={<PengumumanDetail />} />
+        <Route path="/pengumuman-v2" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
+        <Route path="/pengumuman-v2/:slug" element={<PengumumanDetail />} />
+        <Route path="/berita-v2/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
+        <Route path="/berita-v2/pengumuman/:slug" element={<PengumumanDetail />} />
 
         {/* Akademik — nested routes */}
         <Route path="/akademik" element={<AkademikLayout />}>

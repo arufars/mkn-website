@@ -107,11 +107,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mkn.unissula.ac.id/berita-v2/pengumuman</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://mkn.unissula.ac.id/berita/126-mahasiswa-prodi-mkn-unissula-ikuti-materikulasi</loc>
     <lastmod>2024-03-10</lastmod>
     <changefreq>monthly</changefreq>
@@ -706,11 +701,6 @@
     <loc>https://mkn.unissula.ac.id/mahasiswa/prestasi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://mkn.unissula.ac.id/pengumuman-v2</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mkn.unissula.ac.id/profil/sejarah</loc>

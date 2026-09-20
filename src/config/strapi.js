@@ -16,6 +16,7 @@ export const STRAPI_ENDPOINTS = {
   BERITA: "/api/beritas",
   AGENDA: "/api/agendas",
   AGENDA_V2: "/api/agenda",
+  PENGUMUMAN: "/api/pengumumen",
   PENGUMUMAN_V2: "/api/pengumumen",
   KATEGORI: "/api/kategoris",
   MEDIA: "/api/upload/files",
@@ -89,9 +90,9 @@ export const STRAPI_POPULATE = {
     },
   },
 
-  // Populate lengkap untuk Pengumuman V2 (Strapi /api/pengumumen)
-  // Menggunakan wildcard '*' agar seluruh relasi & media (gambar, lampiran, kategori, createdBy, dll)
-  // otomatis terambil dan dinamis ketika ada penambahan field/relasi baru di Strapi Admin Panel.
+  // Populate lengkap untuk Pengumuman (Strapi /api/pengumumen)
+  // Menggunakan wildcard '*' agar seluruh relasi & media otomatis terambil secara dinamis
+  PENGUMUMAN: "*",
   PENGUMUMAN_V2: "*",
 
   // Preset untuk Agenda / Event mendatang (lama)

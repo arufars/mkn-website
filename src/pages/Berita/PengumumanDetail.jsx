@@ -17,23 +17,16 @@ import {
 } from "react-icons/fi";
 import { FaWhatsapp, FaTwitter } from "react-icons/fa";
 
-import Navbar from "../../../components/Navbar";
-import Footer from "../../../components/Footer";
-import { useT, useLanguage } from "../../../i18n/languageContext";
-import { strapiFetch } from "../../../api/strapiClient";
-import { buildDetailByFieldQuery } from "../../../api/strapiQuery";
-import {
-  STRAPI_ENDPOINTS,
-  STRAPI_POPULATE,
-  STRAPI_DEFAULTS,
-} from "../../../config/strapi";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import { useT, useLanguage } from "../../i18n/languageContext";
+import { getHybridPengumumanBySlug } from "../../services/pengumumanService";
 import {
   formatPengumumanDate,
-  normalizePengumuman,
   blocksToPlainText,
-} from "./utils/pengumumanFormatters";
-import { calculateReadingTime } from "../../../utils/format";
-import StrapiArticleBlocks from "../v2/components/StrapiArticleBlocks";
+} from "../../utils/pengumumanFormatters";
+import { calculateReadingTime } from "../../utils/format";
+import StrapiArticleBlocks from "./v2/components/StrapiArticleBlocks";
 
 const viewportSettings = { once: true, amount: 0.15 };
 
@@ -54,7 +47,7 @@ const itemVariants = {
   },
 };
 
-export default function PengumumanV2Detail() {
+export default function PengumumanDetail() {
   const { slug } = useParams();
   const t = useT();
   const { lang } = useLanguage();
@@ -74,70 +67,12 @@ export default function PengumumanV2Detail() {
     setLoading(true);
     setError(null);
 
-    const slugParam = decodeURIComponent(slug).trim();
-    const activeLocale = lang || STRAPI_DEFAULTS.LOCALE;
-
     try {
-      let found = null;
-
-      // 1. Cari via slug + locale aktif
-      try {
-        const q = buildDetailByFieldQuery({
-          field: "slug",
-          value: slugParam,
-          populate: STRAPI_POPULATE.PENGUMUMAN_V2,
-          locale: activeLocale,
-        });
-        const res = await strapiFetch(`${STRAPI_ENDPOINTS.PENGUMUMAN_V2}?${q}`);
-        if (Array.isArray(res?.data) && res.data.length > 0) found = res.data[0];
-      } catch (_) {}
-
-      // 2. Fallback: documentId + locale aktif
-      if (!found) {
-        try {
-          const q = buildDetailByFieldQuery({
-            field: "documentId",
-            value: slugParam,
-            populate: STRAPI_POPULATE.PENGUMUMAN_V2,
-            locale: activeLocale,
-          });
-          const res = await strapiFetch(`${STRAPI_ENDPOINTS.PENGUMUMAN_V2}?${q}`);
-          if (Array.isArray(res?.data) && res.data.length > 0) found = res.data[0];
-        } catch (_) {}
-      }
-
-      // 3. Fallback: slug + locale "id"
-      if (!found && activeLocale !== STRAPI_DEFAULTS.LOCALE) {
-        try {
-          const q = buildDetailByFieldQuery({
-            field: "slug",
-            value: slugParam,
-            populate: STRAPI_POPULATE.PENGUMUMAN_V2,
-            locale: STRAPI_DEFAULTS.LOCALE,
-          });
-          const res = await strapiFetch(`${STRAPI_ENDPOINTS.PENGUMUMAN_V2}?${q}`);
-          if (Array.isArray(res?.data) && res.data.length > 0) found = res.data[0];
-        } catch (_) {}
-      }
-
-      // 4. Fallback: documentId + locale "id"
-      if (!found && activeLocale !== STRAPI_DEFAULTS.LOCALE) {
-        try {
-          const q = buildDetailByFieldQuery({
-            field: "documentId",
-            value: slugParam,
-            populate: STRAPI_POPULATE.PENGUMUMAN_V2,
-            locale: STRAPI_DEFAULTS.LOCALE,
-          });
-          const res = await strapiFetch(`${STRAPI_ENDPOINTS.PENGUMUMAN_V2}?${q}`);
-          if (Array.isArray(res?.data) && res.data.length > 0) found = res.data[0];
-        } catch (_) {}
-      }
-
-      setItem(found ? normalizePengumuman(found) : null);
+      const found = await getHybridPengumumanBySlug(slug, { locale: lang });
+      setItem(found);
     } catch (err) {
-      console.error("[PengumumanV2Detail] Gagal memuat pengumuman:", err);
-      setError(err.message || "Gagal mengambil data dari Strapi CMS.");
+      console.error("[PengumumanDetail] Gagal memuat pengumuman:", err);
+      setError(err.message || "Gagal mengambil data pengumuman.");
     } finally {
       setLoading(false);
     }
@@ -187,7 +122,7 @@ export default function PengumumanV2Detail() {
             </p>
             <div>
               <Link
-                to="/pengumuman-v2"
+                to="/berita?kategori=pengumuman"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-[#680000] text-white text-sm font-semibold rounded-xs transition-colors"
               >
                 <FiArrowLeft className="w-4 h-4" />
@@ -217,7 +152,7 @@ export default function PengumumanV2Detail() {
                   ? "Announcement MKn UNISSULA"
                   : "Pengumuman MKn UNISSULA"
               }`
-            : "Pengumuman V2 | MKn UNISSULA"}
+            : "Pengumuman | MKn UNISSULA"}
         </title>
         <meta
           name="description"
@@ -233,10 +168,10 @@ export default function PengumumanV2Detail() {
         <Navbar />
 
         <div className="flex-grow w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-          {/* Tombol Navigasi Kembali (Persis Screenshot 2) */}
+          {/* Tombol Navigasi Kembali */}
           <div className="mb-6">
             <Link
-              to="/pengumuman-v2"
+              to="/berita?kategori=pengumuman"
               className="inline-flex items-center space-x-2 text-xs font-semibold text-gray-500 hover:text-primary transition-colors"
             >
               <FiArrowLeft className="text-sm" />
@@ -281,7 +216,7 @@ export default function PengumumanV2Detail() {
             </div>
           )}
 
-          {/* Kartu Detail Artikel Utama (Persis Screenshot 2) */}
+          {/* Kartu Detail Artikel Utama */}
           {!loading && item && (
             <motion.article
               initial={{ opacity: 0, y: 25 }}

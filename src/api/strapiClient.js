@@ -1,4 +1,4 @@
-import { STRAPI_BASE_URL, STRAPI_ENDPOINTS } from "../config/strapi";
+import { STRAPI_BASE_URL, STRAPI_ENDPOINTS } from "../config/strapi.js";
 
 export { STRAPI_BASE_URL, STRAPI_ENDPOINTS };
 
