@@ -1,19 +1,20 @@
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { FiArrowLeft, FiPlus, FiExternalLink } from "react-icons/fi";
+import { FiArrowLeft, FiPlus, FiExternalLink, FiRefreshCw, FiAlertCircle } from "react-icons/fi";
 import { motion } from "framer-motion";
 
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import ZoomableImg from "../../components/ui/ZoomableImg";
+import StrapiArticleBlocks from "../../components/Strapi/StrapiArticleBlocks";
+import { getHybridEventBySlug, getUpcomingEvents } from "../../services/eventService";
 import {
-  eventData,
-  formatIndoDate,
-  getIndoDayName,
+  formatEventDate as formatIndoDate,
+  getEventDayName as getIndoDayName,
   generateGoogleCalendarUrl,
   downloadIcsFile,
-} from "../../data/eventData";
+} from "../../utils/eventFormatters";
 import { useT, useLanguage } from "../../i18n/languageContext";
 
 const viewportSettings = {
@@ -63,17 +64,63 @@ export default function EventDetail() {
   const t = useT();
   const { lang } = useLanguage();
 
-  // Cari event berdasarkan slug
-  const event = useMemo(() => {
-    return eventData.find((item) => item.slug === slug);
+  const [event, setEvent] = useState(null);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Scroll to top saat slug berubah
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [slug]);
 
-  // Daftar upcoming events lainnya untuk sidebar kiri
-  const upcomingEvents = useMemo(() => {
-    return eventData
-      .filter((item) => item.slug !== slug)
-      .slice(0, 6);
-  }, [slug]);
+  // Ambil detail event hybrid
+  useEffect(() => {
+    let isMounted = true;
+    async function loadDetail() {
+      if (!slug) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getHybridEventBySlug(slug, { locale: lang });
+        if (!isMounted) return;
+        setEvent(data);
+        if (data) {
+          const upcoming = await getUpcomingEvents(data, { limit: 6, locale: lang });
+          if (isMounted) setUpcomingEvents(upcoming);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error("[EventDetail] Error fetching event:", err);
+          setError(err?.message || "Failed to load event");
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    loadDetail();
+    return () => {
+      isMounted = false;
+    };
+  }, [slug, lang]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-white font-body text-body">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center py-28">
+          <div className="text-center space-y-4">
+            <div className="inline-block w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-gray-500 font-medium">
+              {t({ id: "Memuat detail agenda...", en: "Loading event details..." })}
+            </p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   // Fallback jika event tidak ditemukan
   if (!event) {
@@ -270,7 +317,7 @@ export default function EventDetail() {
                   </motion.div>
                 )}
 
-                {/* Paragraf Narasi Acara — fullDescription dipecah per paragraf */}
+                {/* Paragraf Narasi Acara — fullDescription (Strapi Blocks atau string) */}
                 <motion.div
                   variants={containerVariants}
                   initial="hidden"
@@ -282,18 +329,24 @@ export default function EventDetail() {
                     {t(event.description)}
                   </motion.p>
 
-                  {(t(event.fullDescription) || t(event.description))
-                    .split(/\n\s*\n/)
-                    .filter((paragraf) => paragraf.trim())
-                    .map((paragraf, idx) => (
-                      <motion.p
-                        key={idx}
-                        variants={itemVariants}
-                        className="text-gray-600 text-[15px] leading-7 text-justify"
-                      >
-                        {paragraf.trim()}
-                      </motion.p>
-                    ))}
+                  {Array.isArray(event.fullDescription) ? (
+                    <motion.div variants={itemVariants} className="pt-2 text-base text-body leading-relaxed">
+                      <StrapiArticleBlocks content={event.fullDescription} />
+                    </motion.div>
+                  ) : (
+                    (t(event.fullDescription) || t(event.description))
+                      .split(/\n\s*\n/)
+                      .filter((paragraf) => paragraf.trim())
+                      .map((paragraf, idx) => (
+                        <motion.p
+                          key={idx}
+                          variants={itemVariants}
+                          className="text-gray-600 text-[15px] leading-7 text-justify"
+                        >
+                          {paragraf.trim()}
+                        </motion.p>
+                      ))
+                  )}
                 </motion.div>
 
                 {/* Informasi Narasumber */}

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
@@ -6,13 +7,17 @@ import { TbPinFilled } from "react-icons/tb";
 import {
   berita,
   pengumuman,
+  getBeritaByLocale,
+  getPengumumanByLocale,
   getPinnedBerita,
   getPinnedPengumuman,
 } from "../../data/beritaSelectors";
+import { getHybridPengumumanList } from "../../services/pengumumanService";
 import { getBeritaImage } from "../../utils/imageResolver";
 import { generateSlug } from "../../utils/slugHelper";
 import Img from "../ui/Img";
 import { useUi } from "../../i18n/useUi";
+import { useLanguage } from "../../i18n/languageContext";
 
 const viewportSettings = {
   once: true,
@@ -61,27 +66,71 @@ const cardVariants = {
 
 export default function Announcement() {
   const ui = useUi();
+  const { lang } = useLanguage();
+  const [hybridPengumuman, setHybridPengumuman] = useState(() =>
+    getPengumumanByLocale(lang)
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    setHybridPengumuman(getPengumumanByLocale(lang));
+
+    getHybridPengumumanList({ locale: lang })
+      .then((items) => {
+        if (isMounted && Array.isArray(items) && items.length > 0) {
+          setHybridPengumuman(items);
+        }
+      })
+      .catch((err) => {
+        console.warn("[Announcement] Fallback to local pengumuman:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lang]);
 
   // Bila belum ada pengumuman, section ini fallback ke berita agar tidak kosong.
-  // Featured: item yang dipin lebih dulu, fallback ke item terbaru.
-  const displayList = pengumuman.length > 0 ? pengumuman : berita;
-  const pinnedFeatured =
-    pengumuman.length > 0
-      ? getPinnedPengumuman() ?? pengumuman[0]
-      : getPinnedBerita() ?? berita[0];
+  const displayList =
+    hybridPengumuman.length > 0 ? hybridPengumuman : getBeritaByLocale(lang);
+  const isAnnouncement = hybridPengumuman.length > 0;
 
-  const featured = pinnedFeatured;
-  const featuredIsPinned = featured?.pinned === true;
+  // Pisahkan pengumuman yang di-pin dan non-pinned
+  const pinnedItems = displayList.filter((item) => Boolean(item.isPinned || item.pinned));
+  const nonPinnedItems = displayList.filter((item) => !Boolean(item.isPinned || item.pinned));
 
-  // Sisi kanan: 3 item berikutnya dari daftar (kecuali featured)
-  const sideArticles = displayList
-    .filter((item) => item !== featured)
-    .slice(0, 3);
+  // Pinned pertama jadi featured di kiri; jika tidak ada, ambil non-pinned terbaru
+  const featured = pinnedItems.length > 0 ? pinnedItems[0] : (nonPinnedItems[0] || displayList[0]);
+  const featuredIsPinned = Boolean(featured?.isPinned || featured?.pinned);
 
-  // Tidak semua pengumuman menyertakan flyer. Tanpa gambar, kartu utama jadi
-  // jauh lebih pendek daripada daftar di kolom kanan, jadi tampilannya
-  // disesuaikan agar tepi bawah kedua kolom tetap sejajar.
-  const hasFlyer = Boolean(featured.gambar);
+  // Sisa item yang dipin (pinned ke-2, ke-3, dst) diletakkan di sisi kanan (side articles)
+  const remainingPinned = pinnedItems.filter((item) => item !== featured);
+
+  // Sisa slot kanan (maksimal 3 artikel) diisi oleh pengumuman non-pinned dengan tanggal paling baru
+  const remainingSlots = Math.max(0, 3 - remainingPinned.length);
+  const sideNonPinned = nonPinnedItems.filter((item) => item !== featured).slice(0, remainingSlots);
+
+  // Kolom kanan: Prioritaskan pinned tersisa dulu, baru diikuti yang tanggal paling baru
+  const sideArticles = [...remainingPinned, ...sideNonPinned].slice(0, 3);
+
+  // Tidak semua pengumuman menyertakan flyer
+  const hasFlyer = Boolean(featured?.gambar);
+
+  const resolveImage = (gambar) => {
+    if (!gambar) return "";
+    if (typeof gambar === "string" && (gambar.startsWith("http") || gambar.startsWith("/"))) {
+      return gambar;
+    }
+    return getBeritaImage(gambar);
+  };
+
+  const getArticleUrl = (item) => {
+    if (!item) return "/berita?kategori=pengumuman";
+    const slug = item.slug || generateSlug(item.title, item.slug);
+    return isAnnouncement
+      ? `/pengumuman/${encodeURIComponent(slug)}`
+      : `/berita/${encodeURIComponent(slug)}`;
+  };
 
   return (
     <section className="w-full bg-hero-headingy font-body py-16 sm:py-20 border-b border-gray-200 overflow-hidden">
@@ -128,10 +177,7 @@ export default function Announcement() {
             {/* Featured Announcement Image */}
             {hasFlyer && (
               <Link
-                to={`/berita/${generateSlug(
-                  featured.title,
-                  featured.slug
-                )}`}
+                to={getArticleUrl(featured)}
                 className="overflow-hidden rounded-xs bg-gray-100 border border-gray-200 aspect-16/9 sm:aspect-21/9 relative block"
               >
                 <motion.div
@@ -154,7 +200,7 @@ export default function Announcement() {
                   className="w-full h-full"
                 >
                   <Img
-                    src={getBeritaImage(featured.gambar)}
+                    src={resolveImage(featured.gambar)}
                     alt={featured.title}
                     className="
                       w-full
@@ -169,27 +215,38 @@ export default function Announcement() {
                   />
                 </motion.div>
 
-                {featured.kategori && (
-                  <motion.span
-                    initial={{
-                      opacity: 0,
-                      y: -10,
-                    }}
-                    whileInView={{
-                      opacity: 1,
-                      y: 0,
-                    }}
-                    transition={{
-                      duration: 0.6,
-                      ease: "easeOut",
-                      delay: 0.7,
-                    }}
-                    viewport={viewportSettings}
-                    className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-primary text-white px-2.5 py-0.5 rounded-xs shadow-2xs"
-                  >
-                    {featured.kategori}
-                  </motion.span>
-                )}
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    y: -10,
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    ease: "easeOut",
+                    delay: 0.7,
+                  }}
+                  viewport={viewportSettings}
+                  className="absolute top-4 left-4 flex items-center gap-2 z-10"
+                >
+                  <span className="bg-black/85 text-white text-xs font-semibold px-3 py-1.5 uppercase tracking-wider rounded-xs">
+                    PENGUMUMAN UTAMA
+                  </span>
+                  {featuredIsPinned && (
+                    <span className="bg-primary text-white text-xs font-semibold px-2.5 py-1.5 uppercase tracking-wider rounded-xs inline-flex items-center gap-1 shadow-sm">
+                      <TbPinFilled className="text-xs" />
+                      DIPIN
+                    </span>
+                  )}
+                  {featured.kategori && (
+                    <span className="text-[10px] font-bold tracking-wider text-primary uppercase bg-white/95 px-2 py-1 rounded-xs shadow-sm">
+                      {featured.kategori}
+                    </span>
+                  )}
+                </motion.div>
               </Link>
             )}
 
@@ -208,20 +265,30 @@ export default function Announcement() {
                   : "flex-1 flex flex-col bg-white border border-gray-200 rounded-xs border-l-3 border-l-primary p-6 sm:p-8"
               }
             >
-              {/* Metadata — tanpa flyer, badge kategori tidak punya tempat
-                  menempel, jadi ikut ke baris ini seperti kartu di kolom kanan */}
+              {/* Tanpa flyer: Kotak PENGUMUMAN UTAMA + DIPIN di baris atas kartu */}
+              {!hasFlyer && (
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-center gap-2 mb-3"
+                >
+                  <span className="bg-black/85 text-white text-xs font-semibold px-3 py-1 uppercase tracking-wider rounded-xs">
+                    PENGUMUMAN UTAMA
+                  </span>
+                  {featuredIsPinned && (
+                    <span className="bg-primary text-white text-xs font-semibold px-2.5 py-1 uppercase tracking-wider rounded-xs inline-flex items-center gap-1 shadow-sm">
+                      <TbPinFilled className="text-xs" />
+                      DIPIN
+                    </span>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Metadata */}
               <motion.div
                 variants={itemVariants}
                 className="flex flex-wrap items-center gap-3 text-xs text-gray-500 mb-2"
               >
-                {featuredIsPinned && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider uppercase bg-primary text-white px-2 py-0.5 rounded-xs">
-                    <TbPinFilled className="text-[10px]" />
-                    DIPIN
-                  </span>
-                )}
-
-                {!hasFlyer && featured.kategori && (
+                {featured.kategori && (
                   <span className="text-[10px] font-bold tracking-wider text-primary uppercase bg-red-50 border border-primary/20 px-2 py-0.5 rounded-xs">
                     {featured.kategori}
                   </span>
@@ -245,7 +312,7 @@ export default function Announcement() {
               {/* Judul */}
               <motion.div variants={itemVariants}>
                 <Link
-                  to={`/berita/${generateSlug(featured.title, featured.slug)}`}
+                  to={getArticleUrl(featured)}
                 >
                   <h3 className="font-heading font-normal text-2xl sm:text-3xl text-heading leading-snug group-hover:text-primary transition-colors">
                     {featured.title}
@@ -253,16 +320,16 @@ export default function Announcement() {
                 </Link>
               </motion.div>
 
-              {/* Ringkasan — tanpa flyer ada ruang vertikal lebih, jadi
-                  ringkasannya boleh lebih panjang: mengisi tinggi kolom dengan
-                  isi, bukan dengan ruang kosong. */}
+              {/* Ringkasan */}
               <motion.p
                 variants={itemVariants}
                 className={`mt-3 text-sm sm:text-base text-body leading-relaxed max-w-3xl ${
                   hasFlyer ? "line-clamp-3" : "line-clamp-6"
                 }`}
               >
-                {featured.content}
+                {typeof featured.content === "string"
+                  ? featured.content
+                  : featured.plainContent || ""}
               </motion.p>
 
               {/* Lampiran */}
@@ -313,8 +380,14 @@ export default function Announcement() {
                 {/* Category + Date */}
                 <motion.div
                   variants={itemVariants}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 flex-wrap"
                 >
+                  {Boolean(article.isPinned || article.pinned) && (
+                    <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-wider uppercase bg-primary text-white px-1.5 py-0.5 rounded-xs">
+                      <TbPinFilled className="text-[9px]" />
+                      DIPIN
+                    </span>
+                  )}
                   {article.kategori && (
                     <span className="text-[10px] font-bold tracking-wider text-primary uppercase bg-red-50 border border-primary/20 px-2 py-0.5 rounded-xs">
                       {article.kategori}
@@ -329,10 +402,7 @@ export default function Announcement() {
                 {/* Title */}
                 <motion.div variants={itemVariants}>
                   <Link
-                    to={`/berita/${generateSlug(
-                      article.title,
-                      article.slug
-                    )}`}
+                    to={getArticleUrl(article)}
                   >
                     <h4 className="font-heading font-normal text-lg text-heading leading-snug group-hover:text-primary transition-colors cursor-pointer">
                       {article.title}
@@ -345,7 +415,9 @@ export default function Announcement() {
                   variants={itemVariants}
                   className="text-sm text-body leading-relaxed line-clamp-2"
                 >
-                  {article.content}
+                  {typeof article.content === "string"
+                    ? article.content
+                    : article.plainContent || ""}
                 </motion.p>
 
                 {/* Attachment */}

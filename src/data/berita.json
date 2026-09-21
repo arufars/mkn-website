@@ -1,7 +1,7 @@
 [
   {
     "id": "22",
-    "pinned": true,
+    "isPinned": true,
     "title": "Magister Kenotariatan FH UNISSULA Perkuat Kompetensi Mahasiswa Lewat Pengabdian Masyarakat di Magelang",
     "author": "admkn",
     "tags": "News",
@@ -187,6 +187,7 @@
   },
   {
     "id": "34",
+    "locale": "en",
     "title": "Enhancing Cross-Border Legal Understanding: Indonesian Master’s Students Visit UOW Malaysia for Notarial Law Exchange",
     "author": "admkn",
     "tags": "hukum.",
@@ -1152,6 +1153,7 @@
   },
   {
     "id": "2026-69",
+    "isPinned": true,
     "title": "Sistem Hukum Pertanahan di Indonesia dan Malaysia Dikaji dalam Konferensi Internasional",
     "author": "admkn",
     "tags": "hukum",
@@ -1405,6 +1407,7 @@
   },
   {
     "id": "p1",
+    "isPinned": true,
     "title": "Jadwal Perkuliahan Semester Gasal TA 2026/2027 Magister Kenotariatan",
     "slug": "jadwal-perkuliahan-semester-gasal-2026-2027",
     "author": "admkn",
@@ -1426,6 +1429,7 @@
   },
   {
     "id": "p2",
+    "isPinned": true,
     "title": "Penerimaan Mahasiswa Baru Gelombang II Magister Kenotariatan 2026",
     "slug": "penerimaan-mahasiswa-baru-gelombang-ii-2026",
     "author": "admkn",
@@ -1490,6 +1494,96 @@
     "berlakuHingga": "10 Sep 2026",
     "gambar": null,
     "content": "Gugus Penjaminan Mutu Program Studi Magister Kenotariatan FH UNISSULA menyelenggarakan survei kepuasan mahasiswa atas proses pembelajaran dan sarana laboratorium semester genap.\n\nPartisipasi seluruh mahasiswa sangat diharapkan guna mempertahankan standar mutu pendidikan akreditasi Unggul.\n\nPetunjuk tata cara pengisian survei evaluasi mutu dapat diunduh pada dokumen lampiran berikut.",
+    "lampiran": []
+  },
+  {
+    "id": "2026-69-en",
+    "isPinned": true,
+    "locale": "en",
+    "title": "Land Law System in Indonesia and Malaysia Examined in International Conference",
+    "slug": "land-law-system-in-indonesia-and-malaysia-examined-in-international-conference",
+    "author": "admkn",
+    "tags": "Law",
+    "tanggal": "18 August 2026",
+    "gambar": "2026-berita-5.1",
+    "content": "An international legal conference themed \"The Comparative Land Law System among Indonesia and Malaysia 2026\" was held at the Faculty of Law (FH) UNISSULA.\n\nThe organization of this global academic forum aimed to discuss legal policies regarding land management applicable in Indonesia and Malaysia.\n\nInitiated by the Master of Notarial Law (MKn) Program at FH UNISSULA and opened by UNISSULA Vice Rector Dr. M Abdul Basir, the event featured prominent global experts and speakers.\n\n\"The output of this international agenda is to support students in gaining comprehensive insights into the legal systems of other countries, particularly concerning land law,\" stated Head of MKn Study Program, Dr. Nanang Sri Darmadi.\n\nThrough cross-border legal knowledge exchange, students are expected to become more adaptive in responding to the latest developments in legal regulations.\n\nIn addition, holding this global academic forum supports the university's mission to accelerate progress toward becoming a world-class campus.",
+    "galeri": [
+      {
+        "gambar": "2026-berita-5.1",
+        "keterangan": "UNISSULA Vice Rector M Abdul Basir accompanied by Dean of FH Jawade Hafidz officially opens the international legal forum at Kaligawe Raya Campus."
+      }
+    ],
+    "sumber": {
+      "nama": "Suara Merdeka",
+      "url": "https://www.suaramerdeka.com/pendidikan/0417522486/sistem-hukum-pertanahan-di-indonesia-dan-malaysia-dikaji-dalam-konferensi-internasional"
+    }
+  },
+  {
+    "id": "22-en",
+    "isPinned": true,
+    "locale": "en",
+    "title": "Master’s Program in Notary Law at the Faculty of Law, UNISSULA, Strengthens Student Competencies Through Community Service in Magelang",
+    "slug": "master-s-program-in-notary-law-at-the-faculty-of-law-unissula-strengthens-student-competencies-through-community-service-in-magelang",
+    "author": "admkn",
+    "tags": "News",
+    "tanggal": "26 May 2026",
+    "gambar": "mkn-jatengdaily",
+    "content": "The Master’s Program in Notary Law (MKn), Faculty of Law, Sultan Agung Islamic University (UNISSULA), organized a community service program in Magelang from May 9 to 11, 2026. The program involved 151 students and reached 130 local residents. It was officially opened by Magelang Mayor Damar Prasetyono.\n\nHead of the Master’s Program in Notary Law, Dr. Nanang Sri Darmadi, S.H., M.H., stated that the program was designed to fulfill the learning outcomes and competency targets for graduates. “This community service program was specifically developed and designed to fulfill the competency targets for graduates,” he said.\n\nThe series of activities began with a legal counseling session held in collaboration with the Central Java Regional Office of the Ministry of Law and Human Rights. On the same occasion, the program also provided free notarial deed services for local residents, including the preparation of deeds for associations, foundations, legal entities, and individual limited liability companies.\n\nFor students, the committee organized a notarial deed drafting competition based on real-life case studies. Through this activity, students’ ability to draft authentic deeds was directly tested against legal issues and situations encountered in the field.",
+    "galeri": [
+      {
+        "gambar": "wali-kota-magelang",
+        "keterangan": "Magelang Mayor Damar Prasetyono opens the community service program."
+      },
+      {
+        "gambar": "nanang",
+        "keterangan": "Head of Master's Program in Notary Law, Dr. Nanang Sri Darmadi, S.H., M.H."
+      },
+      {
+        "gambar": "lingkungan",
+        "keterangan": "Tree planting activity as part of social community service in Magelang."
+      }
+    ],
+    "sumber": {
+      "nama": "Jatengdaily.com",
+      "url": "https://jatengdaily.com/2026/magister-kenotariatan-fh-unissula-perkuat-kompetensi-mahasiswa-lewat-pengabdian-masyarakat-di-magelang/"
+    }
+  },
+  {
+    "id": "p1-en",
+    "isPinned": true,
+    "locale": "en",
+    "title": "Odd Semester Lecture Schedule Academic Year 2026/2027 Master of Notary",
+    "slug": "odd-semester-lecture-schedule-2026-2027",
+    "author": "admkn",
+    "tags": "Pengumuman",
+    "kategori": "Akademik",
+    "tanggal": "18 August 2026",
+    "berlakuHingga": "25 Sep 2026",
+    "gambar": "pengumuman-kuliah",
+    "content": "Announcement to all students of the Master of Notary (MKn) Program, Faculty of Law UNISSULA, regarding the Odd Semester Lecture Schedule for Academic Year 2026/2027.\n\nLectures will officially commence on Monday, September 8, 2026, held in a hybrid format in accordance with each class schedule.\n\nPlease download the full schedule and class division documents below.",
+    "lampiran": [
+      {
+        "nama": "Jadwal-Kuliah-Gasal-2026-2027.pdf",
+        "judul": "Odd Semester Lecture Schedule 2026/2027",
+        "format": "PDF",
+        "ukuran": "2.4 MB",
+        "url": "/pdf/pengumuman/jadwal-kuliah-gasal-2026.pdf"
+      }
+    ]
+  },
+  {
+    "id": "p2-en",
+    "isPinned": true,
+    "locale": "en",
+    "title": "New Student Admission Batch II Master of Notary 2026",
+    "slug": "new-student-admission-batch-ii-2026",
+    "author": "admkn",
+    "tags": "Pengumuman",
+    "kategori": "Admisi",
+    "tanggal": "15 August 2026",
+    "berlakuHingga": "12 Sep 2026",
+    "gambar": null,
+    "content": "The Master of Notary Program (MKn) Faculty of Law Sultan Agung Islamic University opens registration for New Student Candidates Batch II until September 12, 2026.\n\nAccredited 'Unggul' by BAN-PT and 'Premier' by ASIC International, the program is dedicated to educating professional, ethical, and globally competitive future Notaries and PPATs.\n\nDownload the official brochure, admission requirements, and tuition fee details below.",
     "lampiran": []
   }
 ]

@@ -12,6 +12,7 @@ import Ready from "../components/Home/Ready";
 import Highlight from "../components/Home/Highlight";
 import Announcement from "../components/Home/Announcement";
 import { useT } from "../i18n/languageContext";
+import { useEffect } from "react";
 
 const metaHome = {
   title: {

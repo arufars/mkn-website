@@ -258,6 +258,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://mkn.unissula.ac.id/berita/land-law-system-in-indonesia-and-malaysia-examined-in-international-conference</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://mkn.unissula.ac.id/berita/magister-kenotariatan-fh-unissula-perkuat-kompetensi-mahasiswa-lewat-pengabdian-masyarakat-di-magelang</loc>
     <lastmod>2026-05-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -308,6 +313,11 @@
   <url>
     <loc>https://mkn.unissula.ac.id/berita/mahasiswa-prodi-mkn-unissula-lakukan-penyuluhan-hukum-kepada-warga-desa-tawangmangu</loc>
     <lastmod>2025-01-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mkn.unissula.ac.id/berita/master-s-program-in-notary-law-at-the-faculty-of-law-unissula-strengthens-student-competencies-through-community-service-in-magelang</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -386,6 +396,16 @@
   <url>
     <loc>https://mkn.unissula.ac.id/berita/nanang-darmadi-unggul-bukan-sekadar-predikat-tapi-pencapaian-nyata</loc>
     <lastmod>2025-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mkn.unissula.ac.id/berita/new-student-admission-batch-ii-2026</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mkn.unissula.ac.id/berita/odd-semester-lecture-schedule-2026-2027</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

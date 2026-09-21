@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import Loading from "./components/Loading";
 import ScrollToTop from "./components/ScrollToTop";
 import LembarTanya from "./components/Chat/LembarTanya";
@@ -17,6 +17,12 @@ const StrukturOrganisasi = lazy(() => import("./pages/Profil/StrukturOrganisasi"
 // Berita sub-pages
 const BeritaIndex = lazy(() => import("./pages/Berita/index"));
 const BeritaDetail = lazy(() => import("./pages/Berita/BeritaDetail"));
+const PengumumanDetail = lazy(() => import("./pages/Berita/PengumumanDetail"));
+
+function BeritaV2Redirect() {
+  const { title } = useParams();
+  return <Navigate to={`/berita/${title || ""}`} replace />;
+}
 
 const AkademikLayout = lazy(() => import("./pages/Akademik/index"));
 const Kurikulum = lazy(() => import("./pages/Akademik/Kurikulum"));
@@ -90,6 +96,11 @@ const Prestasi = lazy(() => import("./pages/StudentLife/Prestasi"));
 const EventPage = lazy(() => import("./pages/Event/index"));
 const EventDetailPage = lazy(() => import("./pages/Event/EventDetail"));
 
+function EventV2Redirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/event/${slug || ""}`} replace />;
+}
+
 // Alumni & Karir sub-pages
 const AlumniLayout = lazy(() => import("./pages/Alumni/index"));
 const TracerStudy = lazy(() => import("./pages/Alumni/TracerStudy"));
@@ -132,6 +143,8 @@ export default function App() {
         <Route path="/berita" element={<BeritaIndex />} />
         <Route path="/berita/:slug" element={<BeritaDetail />} />
         <Route path="/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
+        <Route path="/pengumuman/:slug" element={<PengumumanDetail />} />
+
 
         {/* Akademik — nested routes */}
         <Route path="/akademik" element={<AkademikLayout />}>
@@ -260,6 +273,10 @@ export default function App() {
         <Route path="/event" element={<EventPage />} />
         <Route path="/event/:slug" element={<EventDetailPage />} />
         <Route path="/agenda" element={<Navigate to="/event" replace />} />
+
+        {/* Redirect Rute Usang Event V2 (Backward Compatibility) */}
+        <Route path="/event-v2" element={<Navigate to="/event" replace />} />
+        <Route path="/event-v2/:slug" element={<EventV2Redirect />} />
 
         {/* Kerja Sama */}
         <Route path="/kerja-sama" element={<KerjaSama />} />

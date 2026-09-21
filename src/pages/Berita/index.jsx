@@ -16,7 +16,15 @@ import Footer from "../../components/Footer";
 import Breadcrumb from "../../components/ui/Breadcrumb";
 import { useT, useLanguage } from "../../i18n/languageContext";
 import { useUi } from "../../i18n/useUi";
-import { berita as beritaTerurut, pengumuman as pengumumanTerurut } from "../../data/beritaSelectors";
+import {
+  berita as beritaTerurut,
+  pengumuman as pengumumanTerurut,
+  getBeritaByLocale,
+  getPengumumanByLocale,
+} from "../../data/beritaSelectors";
+import { getHybridPengumumanList } from "../../services/pengumumanService";
+import { getHybridBeritaList } from "../../services/beritaService";
+import { formatBeritaDate } from "../../utils/beritaFormatters";
 import { getBeritaImage } from "../../utils/imageResolver";
 import { generateSlug } from "../../utils/slugHelper";
 import Img from "../../components/ui/Img";
@@ -142,23 +150,36 @@ const KATEGORI_TABS = [
  */
 function PengumumanCard({ item }) {
   const t = useT();
-  // getBeritaImage() punya fallback ke gambar berita utama saat path tidak
-  // ketemu, jadi "tanpa gambar" harus ditentukan dari datanya, bukan dari
-  // hasil resolusi path.
-  const itemImage = item.gambar ? getBeritaImage(item.gambar) : "";
-  const itemSlug = generateSlug(item.title, item.slug);
+  // Resolusi gambar: URL Strapi atau aset lokal
+  const itemImage = item.gambar
+    ? typeof item.gambar === "string" &&
+      (item.gambar.startsWith("http") || item.gambar.startsWith("/"))
+      ? item.gambar
+      : getBeritaImage(item.gambar)
+    : "";
+  const itemSlug = item.slug || generateSlug(item.title, item.slug);
+  const detailUrl = `/pengumuman/${encodeURIComponent(itemSlug)}`;
   const lampiran = Array.isArray(item.lampiran) ? item.lampiran : [];
+  const summaryText =
+    typeof item.content === "string"
+      ? item.content
+      : item.plainContent || "";
+  const isPinned = Boolean(item.isPinned || item.pinned);
 
   return (
     <motion.article
       whileHover={{ y: -3 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="group bg-white border border-gray-200 rounded-xs overflow-hidden hover:border-primary/40 hover:shadow-xs transition-all flex flex-col md:flex-row"
+      className={`group bg-white border rounded-xs overflow-hidden hover:shadow-xs transition-all flex flex-col md:flex-row ${
+        isPinned
+          ? "border-primary/40 shadow-2xs border-l-4 border-l-primary"
+          : "border-gray-200 hover:border-primary/40"
+      }`}
     >
       {itemImage ? (
         /* Varian bergambar: kolom flyer di kiri (di atas pada layar kecil) */
         <Link
-          to={`/berita/${itemSlug}`}
+          to={detailUrl}
           tabIndex={-1}
           aria-hidden="true"
           className="relative shrink-0 overflow-hidden bg-gray-100 border-b md:border-b-0 md:border-r border-gray-200 h-48 sm:h-56 md:h-auto md:w-64 lg:w-72"
@@ -181,16 +202,21 @@ function PengumumanCard({ item }) {
         /* Varian tanpa gambar: pita aksen sebagai pengganti kolom flyer */
         <div
           aria-hidden="true"
-          className="shrink-0 bg-primary h-1 w-full md:h-auto md:w-1.5"
+          className={`shrink-0 h-1 w-full md:h-auto md:w-1.5 ${isPinned ? "bg-primary" : "bg-primary"}`}
         />
       )}
 
       {/* Konten & Lampiran Pengumuman */}
       <div className="p-5 sm:p-6 lg:p-7 flex-grow min-w-0 flex flex-col justify-between gap-4">
         <div className="space-y-3">
-          {/* Metadata bar — kategori ikut di sini supaya entri tanpa flyer
-              tetap menampilkannya */}
+          {/* Metadata bar */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-gray-500">
+            {isPinned && (
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-wider uppercase bg-primary text-white px-1.5 py-0.5 rounded-xs">
+                <TbPinFilled className="text-[9px]" />
+                {t({ id: "DIPIN", en: "PINNED" })}
+              </span>
+            )}
             {item.kategori && (
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary bg-red-50 border border-primary/20 px-2 py-0.5 rounded-xs">
                 <FiFileText className="text-[11px]" />
@@ -213,12 +239,11 @@ function PengumumanCard({ item }) {
 
           {/* Judul Pengumuman */}
           <h3 className="font-heading text-xl sm:text-2xl text-heading font-normal leading-snug group-hover:text-primary transition-colors">
-            <Link to={`/berita/${itemSlug}`}>{item.title}</Link>
+            <Link to={detailUrl}>{item.title}</Link>
           </h3>
 
-          {/* Ringkasan Konten — kartu tanpa flyer punya ruang lebih lega,
-              jadi ringkasannya boleh satu baris lebih panjang */}
-          {item.content && (
+          {/* Ringkasan Konten */}
+          {summaryText && (
             <p
               className={`text-sm text-body/80 leading-relaxed ${
                 itemImage
@@ -226,7 +251,7 @@ function PengumumanCard({ item }) {
                   : "line-clamp-3 sm:line-clamp-4"
               }`}
             >
-              {item.content}
+              {summaryText}
             </p>
           )}
         </div>
@@ -270,7 +295,7 @@ function PengumumanCard({ item }) {
 
           {/* Tautan detail */}
           <Link
-            to={`/berita/${itemSlug}`}
+            to={detailUrl}
             className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary hover:text-[#680000] transition-colors shrink-0 self-start sm:self-auto"
           >
             <span>{t({ id: "Selengkapnya", en: "Read more" })}</span>
@@ -279,6 +304,84 @@ function PengumumanCard({ item }) {
         </div>
       </div>
     </motion.article>
+  );
+}
+
+/**
+ * Komponen Navigasi Pagination Responsif.
+ * Menampilkan maksimal 4 nomor halaman sekaligus:
+ * Saat berada di halaman 1–4, nomor 1–4 yang terlihat.
+ * Saat berpindah (Next) ke halaman 5, nomor 5 akan terlihat (sliding window).
+ */
+function PaginationBar({ currentPage, totalPages, onPageChange, ui }) {
+  if (totalPages <= 1) return null;
+
+  // Hitung nomor halaman yang tampil (maksimal 4)
+  const maxVisible = 4;
+  let start = 1;
+  if (currentPage > maxVisible) {
+    start = currentPage - maxVisible + 1;
+  }
+  if (start + maxVisible - 1 > totalPages) {
+    start = Math.max(1, totalPages - maxVisible + 1);
+  }
+  const end = Math.min(start + maxVisible - 1, totalPages);
+  const visiblePages = [];
+  for (let i = start; i <= end; i++) {
+    visiblePages.push(i);
+  }
+
+  return (
+    <nav
+      aria-label="Navigasi Halaman"
+      className="pt-8 pb-4 flex items-center justify-center gap-1 sm:gap-1.5 max-w-full px-2"
+    >
+      {/* Tombol Sebelumnya */}
+      <button
+        type="button"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        aria-label={ui("previous")}
+        className="inline-flex items-center justify-center px-2.5 sm:px-4 h-8 sm:h-9 text-[11px] sm:text-xs font-semibold rounded-xs border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:text-primary active:scale-98 disabled:opacity-40 disabled:pointer-events-none cursor-pointer transition-all shadow-2xs shrink-0"
+      >
+        <FiChevronLeft className="mr-0.5 sm:mr-1 text-sm shrink-0" />
+        <span>{ui("previous")}</span>
+      </button>
+
+      {/* Nomor Halaman (Maksimal 4) */}
+      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        {visiblePages.map((pageNum) => (
+          <motion.button
+            key={pageNum}
+            type="button"
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onPageChange(pageNum)}
+            aria-label={`${ui("page")} ${pageNum}`}
+            aria-current={currentPage === pageNum ? "page" : undefined}
+            className={`w-8 sm:w-9 h-8 sm:h-9 min-w-[32px] sm:min-w-[36px] flex items-center justify-center text-xs font-bold rounded-xs border transition-all cursor-pointer select-none shrink-0 ${
+              currentPage === pageNum
+                ? "bg-primary text-white border-primary shadow-xs"
+                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100 hover:border-primary hover:text-primary active:scale-95 shadow-2xs"
+            }`}
+          >
+            {pageNum}
+          </motion.button>
+        ))}
+      </div>
+
+      {/* Tombol Berikutnya */}
+      <button
+        type="button"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        aria-label={ui("next")}
+        className="inline-flex items-center justify-center px-2.5 sm:px-4 h-8 sm:h-9 text-[11px] sm:text-xs font-semibold rounded-xs border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:text-primary active:scale-98 disabled:opacity-40 disabled:pointer-events-none cursor-pointer transition-all shadow-2xs shrink-0"
+      >
+        <span>{ui("next")}</span>
+        <FiChevronRight className="ml-0.5 sm:ml-1 text-sm shrink-0" />
+      </button>
+    </nav>
   );
 }
 
@@ -308,10 +411,44 @@ export default function BeritaIndex() {
 
   const isBerita = kategori === "berita";
 
-  // Pemilahan dan pengurutannya kini tinggal di data/beritaSelectors, dipakai
-  // bersama section Berita dan Pengumuman di Beranda.
-  const beritaItems = beritaTerurut;
-  const pengumumanItems = pengumumanTerurut;
+  const [beritaItems, setBeritaItems] = useState(() =>
+    getBeritaByLocale(lang)
+  );
+  const [pengumumanItems, setPengumumanItems] = useState(() =>
+    getPengumumanByLocale(lang)
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    setBeritaItems(getBeritaByLocale(lang));
+    setPengumumanItems(getPengumumanByLocale(lang));
+
+    // Ambil data berita hybrid (Strapi CMS + Local JSON)
+    getHybridBeritaList({ locale: lang })
+      .then((data) => {
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setBeritaItems(data);
+        }
+      })
+      .catch((err) => {
+        console.warn("[BeritaIndex] Fallback to local berita:", err);
+      });
+
+    // Ambil data pengumuman hybrid (Strapi CMS + Local JSON)
+    getHybridPengumumanList({ locale: lang })
+      .then((data) => {
+        if (isMounted && Array.isArray(data) && data.length > 0) {
+          setPengumumanItems(data);
+        }
+      })
+      .catch((err) => {
+        console.warn("[BeritaIndex] Fallback to local pengumuman:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [lang]);
 
   const handleKategoriChange = (key) => {
     setSearchParams(key === "berita" ? {} : { kategori: key });
@@ -363,23 +500,63 @@ export default function BeritaIndex() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  // Featured news: item yang dipin, fallback ke item terbaru
-  const featuredNews = useMemo(
-    () => beritaItems.find((item) => item.pinned) ?? beritaItems[0],
-    [beritaItems]
-  );
+  // Pisahkan berita yang dipin dan non-pinned
+  const { featuredNews, allOtherNews } = useMemo(() => {
+    const pinned = beritaItems.filter((item) => Boolean(item.isPinned || item.pinned));
+    const nonPinned = beritaItems.filter((item) => !Boolean(item.isPinned || item.pinned));
+
+    // Pinned pertama jadi featured di atas; jika tidak ada, ambil non-pinned terbaru
+    const featured = pinned.length > 0 ? pinned[0] : (nonPinned[0] || beritaItems[0]);
+
+    // Berita lainnya: Pinned sisa (pinned ke-2, ke-3, dst jika ada > 2) selalu berada di urutan teratas list,
+    // baru kemudian diikuti oleh berita non-pinned dengan tanggal paling baru!
+    const remainingPinned = pinned.filter((item) => item !== featured);
+    const remainingNonPinned = nonPinned.filter((item) => item !== featured);
+
+    const others = [...remainingPinned, ...remainingNonPinned];
+
+    return {
+      featuredNews: featured,
+      allOtherNews: others,
+    };
+  }, [beritaItems]);
 
   // Apakah featured news memang karena dipin (bukan fallback)
-  const featuredIsPinned = featuredNews?.pinned === true;
+  const featuredIsPinned = Boolean(featuredNews?.isPinned || featuredNews?.pinned);
 
-  const allOtherNews = useMemo(
-    () => beritaItems.filter((item) => item !== featuredNews),
-    [beritaItems, featuredNews]
-  );
+  // Pisahkan pengumuman yang dipin dan non-pinned
+  const { featuredPengumuman, allOtherPengumuman } = useMemo(() => {
+    const pinned = pengumumanItems.filter((item) => Boolean(item.isPinned || item.pinned));
+    const nonPinned = pengumumanItems.filter((item) => !Boolean(item.isPinned || item.pinned));
 
-  const totalPages = Math.ceil(
+    // Pinned pertama jadi featured di atas; jika tidak ada, ambil non-pinned terbaru
+    const featured = pinned.length > 0 ? pinned[0] : (nonPinned[0] || pengumumanItems[0]);
+
+    // Pengumuman lainnya: Pinned sisa (pinned ke-2, ke-3, dst jika ada > 2) selalu berada di urutan teratas list,
+    // baru kemudian diikuti oleh pengumuman non-pinned dengan tanggal paling baru!
+    const remainingPinned = pinned.filter((item) => item !== featured);
+    const remainingNonPinned = nonPinned.filter((item) => item !== featured);
+
+    const others = [...remainingPinned, ...remainingNonPinned];
+
+    return {
+      featuredPengumuman: featured,
+      allOtherPengumuman: others,
+    };
+  }, [pengumumanItems]);
+
+  // Apakah featured pengumuman memang karena dipin (bukan fallback)
+  const featuredPengumumanIsPinned = Boolean(featuredPengumuman?.isPinned || featuredPengumuman?.pinned);
+
+  const totalNewsPages = Math.ceil(
     allOtherNews.length / ITEMS_PER_PAGE
   );
+
+  const totalPengumumanPages = Math.ceil(
+    allOtherPengumuman.length / ITEMS_PER_PAGE
+  );
+
+  const totalPages = isBerita ? totalNewsPages : totalPengumumanPages;
 
   const currentNewsList = useMemo(() => {
     const startIndex =
@@ -390,6 +567,16 @@ export default function BeritaIndex() {
       startIndex + ITEMS_PER_PAGE
     );
   }, [allOtherNews, currentPage]);
+
+  const currentPengumumanList = useMemo(() => {
+    const startIndex =
+      (currentPage - 1) * ITEMS_PER_PAGE;
+
+    return allOtherPengumuman.slice(
+      startIndex,
+      startIndex + ITEMS_PER_PAGE
+    );
+  }, [allOtherPengumuman, currentPage]);
 
   const handlePageChange = (page) => {
     if (page < 1 || page > totalPages) return;
@@ -500,134 +687,119 @@ export default function BeritaIndex() {
               FEATURED NEWS
           ===================================================== */}
 
-          {isBerita && featuredNews && (
-            <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
-              {/* IMAGE */}
+          {isBerita && featuredNews && (() => {
+            const featuredSlug = featuredNews.slug || generateSlug(featuredNews.title, featuredNews.slug);
+            const featuredImageSrc = featuredNews.imageUrl || (featuredNews.gambar ? (typeof featuredNews.gambar === "string" && (featuredNews.gambar.startsWith("http") || featuredNews.gambar.startsWith("/")) ? featuredNews.gambar : getBeritaImage(featuredNews.gambar)) : "");
+            const featuredContent = featuredNews.plainContent || (typeof featuredNews.content === "string" ? featuredNews.content : "");
+            const featuredDate = formatBeritaDate(featuredNews.tanggal, lang).toUpperCase();
 
-              <div className="lg:col-span-6">
-                <Link
-                  ref={featuredRef}
-                  to={`/berita/${generateSlug(
-                    featuredNews.title,
-                    featuredNews.slug
-                  )}`}
-                  onClick={() => {
-                    try {
-                      sessionStorage.setItem(
-                        BERITA_SESSION_KEY,
-                        JSON.stringify({ page: 1, articleId: "featured" })
-                      );
-                    } catch (_) { /* ignore */ }
-                  }}
-                  className="block w-full aspect-[4/3] bg-[#E8E6E1] rounded-xs relative overflow-hidden group"
-                >
-                  <motion.div
-                    initial={{
-                      opacity: 0,
-                      scale: 1.08,
-                      filter:
-                        "grayscale(100%) blur(4px)",
+            return (
+              <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+                {/* IMAGE */}
+                <div className="lg:col-span-6">
+                  <Link
+                    ref={featuredRef}
+                    to={`/berita/${featuredSlug}`}
+                    onClick={() => {
+                      try {
+                        sessionStorage.setItem(
+                          BERITA_SESSION_KEY,
+                          JSON.stringify({ page: 1, articleId: "featured" })
+                        );
+                      } catch (_) { /* ignore */ }
                     }}
-                    whileInView={{
-                      opacity: 1,
-                      scale: 1,
-                      filter:
-                        "grayscale(0%) blur(0px)",
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      ease: "easeOut",
-                    }}
-                    viewport={viewportSettings}
-                    className="w-full h-full"
+                    className="block w-full aspect-[4/3] bg-[#E8E6E1] rounded-xs relative overflow-hidden group"
                   >
-                    <Img
-                      eager
-                      src={getBeritaImage(
-                        featuredNews.gambar
-                      )}
-                      alt={featuredNews.title}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 rounded-md"
-                      onError={(e) => {
-                        e.currentTarget.style.display =
-                          "none";
+                    <motion.div
+                      initial={{
+                        opacity: 0,
+                        scale: 1.08,
+                        filter: "grayscale(100%) blur(4px)",
                       }}
-                    />
-                  </motion.div>
-                </Link>
-              </div>
-
-              {/* CONTENT */}
-
-              <div className="lg:col-span-6 space-y-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold tracking-wider text-primary uppercase">
-                    {t(halaman.beritaUtama)} ·{" "}
-                    {featuredNews.tanggal
-                      ? featuredNews.tanggal.toUpperCase()
-                      : "OKTOBER 2022"}
-                  </span>
-                  {featuredIsPinned && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider uppercase bg-primary text-white px-2 py-0.5 rounded-xs">
-                      <TbPinFilled className="text-xs" />
-                      {t({ id: "DIPIN", en: "PINNED" })}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <Link
-                    to={`/berita/${generateSlug(
-                      featuredNews.title,
-                      featuredNews.slug
-                    )}`}
-                    onClick={() => {
-                      try {
-                        sessionStorage.setItem(
-                          BERITA_SESSION_KEY,
-                          JSON.stringify({ page: 1, articleId: "featured" })
-                        );
-                      } catch (_) { /* ignore */ }
-                    }}
-                  >
-                    <h2 className="font-heading font-normal text-3xl sm:text-4xl text-heading leading-tight hover:text-primary transition-colors">
-                      {featuredNews.title}
-                    </h2>
+                      whileInView={{
+                        opacity: 1,
+                        scale: 1,
+                        filter: "grayscale(0%) blur(0px)",
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        ease: "easeOut",
+                      }}
+                      viewport={viewportSettings}
+                      className="w-full h-full"
+                    >
+                      <Img
+                        eager
+                        src={featuredImageSrc}
+                        alt={featuredNews.title}
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 rounded-md"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </motion.div>
                   </Link>
                 </div>
 
-                <p className="text-sm sm:text-base text-body leading-relaxed pt-1 line-clamp-4">
-                  {featuredNews.content}
-                </p>
-
-                <div className="pt-2">
-                  <Link
-                    to={`/berita/${generateSlug(
-                      featuredNews.title,
-                      featuredNews.slug
-                    )}`}
-                    onClick={() => {
-                      try {
-                        sessionStorage.setItem(
-                          BERITA_SESSION_KEY,
-                          JSON.stringify({ page: 1, articleId: "featured" })
-                        );
-                      } catch (_) { /* ignore */ }
-                    }}
-                    className="inline-flex items-center text-xs font-bold tracking-wider text-primary hover:text-[#680000] uppercase transition-colors group/btn"
-                  >
-                    <span>
-                      {t(halaman.bacaSelengkapnya)}
+                {/* CONTENT */}
+                <div className="lg:col-span-6 space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-bold tracking-wider text-primary uppercase">
+                      {t(halaman.beritaUtama)} · {featuredDate || "OKTOBER 2022"}
                     </span>
+                    {featuredIsPinned && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider uppercase bg-primary text-white px-2 py-0.5 rounded-xs">
+                        <TbPinFilled className="text-xs" />
+                        {t({ id: "DIPIN", en: "PINNED" })}
+                      </span>
+                    )}
+                  </div>
 
-                    <span className="ml-1.5 transition-transform group-hover/btn:translate-x-1">
-                      →
-                    </span>
-                  </Link>
+                  <div>
+                    <Link
+                      to={`/berita/${featuredSlug}`}
+                      onClick={() => {
+                        try {
+                          sessionStorage.setItem(
+                            BERITA_SESSION_KEY,
+                            JSON.stringify({ page: 1, articleId: "featured" })
+                          );
+                        } catch (_) { /* ignore */ }
+                      }}
+                    >
+                      <h2 className="font-heading font-normal text-3xl sm:text-4xl text-heading leading-tight hover:text-primary transition-colors">
+                        {featuredNews.title}
+                      </h2>
+                    </Link>
+                  </div>
+
+                  <p className="text-sm sm:text-base text-body leading-relaxed pt-1 line-clamp-4">
+                    {featuredContent}
+                  </p>
+
+                  <div className="pt-2">
+                    <Link
+                      to={`/berita/${featuredSlug}`}
+                      onClick={() => {
+                        try {
+                          sessionStorage.setItem(
+                            BERITA_SESSION_KEY,
+                            JSON.stringify({ page: 1, articleId: "featured" })
+                          );
+                        } catch (_) { /* ignore */ }
+                      }}
+                      className="inline-flex items-center text-xs font-bold tracking-wider text-primary hover:text-[#680000] uppercase transition-colors group/btn"
+                    >
+                      <span>{t(halaman.bacaSelengkapnya)}</span>
+                      <span className="ml-1.5 transition-transform group-hover/btn:translate-x-1">
+                        →
+                      </span>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </section>
-          )}
+              </section>
+            );
+          })()}
 
           {/* =====================================================
               MORE NEWS
@@ -662,7 +834,12 @@ export default function BeritaIndex() {
 
               <div className="divide-y divide-gray-200">
                 {currentNewsList.map((news) => {
-                  const newsSlug = generateSlug(news.title, news.slug);
+                  const newsSlug = news.slug || generateSlug(news.title, news.slug);
+                  const newsTags = Array.isArray(news.tags) ? news.tags.join(", ") : (news.tags || "Berita");
+                  const newsDate = formatBeritaDate(news.tanggal, lang);
+                  const newsIsPinned = Boolean(news.isPinned || news.pinned);
+                  const newsContent = news.plainContent || (typeof news.content === "string" ? news.content : "");
+
                   return (
                     <article
                       key={news.id}
@@ -671,10 +848,9 @@ export default function BeritaIndex() {
                     >
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-xs text-gray-500">
-                          {news.tanggal || "Oktober 2022"} ·{" "}
-                          {news.tags || "News"}
+                          {newsDate || "Oktober 2022"} · {newsTags}
                         </span>
-                        {news.pinned && (
+                        {newsIsPinned && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-wider uppercase bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded-xs">
                             <TbPinFilled className="text-[9px]" />
                             {t({ id: "DIPIN", en: "PINNED" })}
@@ -699,7 +875,7 @@ export default function BeritaIndex() {
                       </Link>
 
                       <p className="text-sm sm:text-[15px] text-body leading-relaxed max-w-5xl line-clamp-3">
-                        {news.content}
+                        {newsContent}
                       </p>
                     </article>
                   );
@@ -707,90 +883,162 @@ export default function BeritaIndex() {
               </div>
 
               {/* PAGINATION */}
-
-              {totalPages > 1 && (
-                <div className="pt-8 pb-4 flex items-center justify-center gap-2">
-                  <button
-                    onClick={() =>
-                      handlePageChange(
-                        currentPage - 1
-                      )
-                    }
-                    disabled={currentPage === 1}
-                    aria-label={ui("previous")}
-                    className="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-xs border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:text-primary active:scale-98 disabled:opacity-40 disabled:pointer-events-none cursor-pointer transition-all shadow-2xs"
-                  >
-                    <FiChevronLeft className="mr-1 text-sm" />
-                    <span>{ui("previous")}</span>
-                  </button>
-
-                  <div className="flex items-center gap-1.5">
-                    {Array.from(
-                      { length: totalPages },
-                      (_, i) => i + 1
-                    ).map((pageNum) => (
-                      <motion.button
-                        key={pageNum}
-                        whileHover={{
-                          y: -2,
-                        }}
-                        whileTap={{
-                          scale: 0.95,
-                        }}
-                        onClick={() =>
-                          handlePageChange(pageNum)
-                        }
-                        aria-label={`${ui(
-                          "page"
-                        )} ${pageNum}`}
-                        aria-current={
-                          currentPage === pageNum
-                            ? "page"
-                            : undefined
-                        }
-                        className={`min-w-[38px] h-9 flex items-center justify-center text-xs font-bold rounded-xs border transition-all cursor-pointer select-none ${
-                          currentPage === pageNum
-                            ? "bg-primary text-white border-primary shadow-xs"
-                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100 hover:border-primary hover:text-primary active:scale-95 shadow-2xs"
-                        }`}
-                      >
-                        {pageNum}
-                      </motion.button>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={() =>
-                      handlePageChange(
-                        currentPage + 1
-                      )
-                    }
-                    disabled={
-                      currentPage === totalPages
-                    }
-                    aria-label={ui("next")}
-                    className="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-xs border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:text-primary active:scale-98 disabled:opacity-40 disabled:pointer-events-none cursor-pointer transition-all shadow-2xs"
-                  >
-                    <span>{ui("next")}</span>
-                    <FiChevronRight className="ml-1 text-sm" />
-                  </button>
-                </div>
-              )}
+              <PaginationBar
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                ui={ui}
+              />
             </section>
           )}
 
           {/* =====================================================
-              ANNOUNCEMENTS
+              FEATURED ANNOUNCEMENT (Pengumuman Utama)
+          ===================================================== */}
+
+          {!isBerita && featuredPengumuman && (() => {
+            const featuredSlug = featuredPengumuman.slug || generateSlug(featuredPengumuman.title, featuredPengumuman.slug);
+            const detailUrl = `/pengumuman/${encodeURIComponent(featuredSlug)}`;
+            const featuredImageSrc = featuredPengumuman.gambar
+              ? typeof featuredPengumuman.gambar === "string" &&
+                (featuredPengumuman.gambar.startsWith("http") || featuredPengumuman.gambar.startsWith("/"))
+                ? featuredPengumuman.gambar
+                : getBeritaImage(featuredPengumuman.gambar)
+              : "";
+            const featuredContent =
+              typeof featuredPengumuman.content === "string"
+                ? featuredPengumuman.content
+                : featuredPengumuman.plainContent || "";
+
+            return (
+              <section aria-label="Pengumuman Utama">
+                <div className="border bg-white rounded-xs border-gray-200 border-l-4 border-l-primary p-6 sm:p-8 lg:p-10 shadow-2xs">
+                  <div className={`grid grid-cols-1 ${featuredImageSrc ? "lg:grid-cols-12 gap-8 lg:gap-12" : "gap-6"} items-center`}>
+                    {featuredImageSrc && (
+                      <div className="lg:col-span-5">
+                        <Link
+                          to={detailUrl}
+                          className="block w-full aspect-16/10 sm:aspect-4/3 bg-gray-100 rounded-xs relative overflow-hidden group"
+                        >
+                          <motion.div
+                            initial={{
+                              opacity: 0,
+                              scale: 1.08,
+                              filter: "grayscale(100%) blur(4px)",
+                            }}
+                            whileInView={{
+                              opacity: 1,
+                              scale: 1,
+                              filter: "grayscale(0%) blur(0px)",
+                            }}
+                            transition={{
+                              duration: 1.5,
+                              ease: "easeOut",
+                            }}
+                            viewport={viewportSettings}
+                            className="w-full h-full"
+                          >
+                            <Img
+                              eager
+                              src={featuredImageSrc}
+                              alt={featuredPengumuman.title}
+                              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 rounded-xs"
+                            />
+                          </motion.div>
+                        </Link>
+                      </div>
+                    )}
+
+                    <div className={featuredImageSrc ? "lg:col-span-7 space-y-4" : "space-y-4"}>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="bg-black/85 text-white text-xs font-semibold px-3 py-1 uppercase tracking-wider rounded-xs">
+                          {t({ id: "PENGUMUMAN UTAMA", en: "MAIN ANNOUNCEMENT" })}
+                        </span>
+                        {featuredPengumumanIsPinned && (
+                          <span className="bg-primary text-white text-xs font-semibold px-2.5 py-1 uppercase tracking-wider rounded-xs inline-flex items-center gap-1 shadow-sm">
+                            <TbPinFilled className="text-xs" />
+                            {t({ id: "DIPIN", en: "PINNED" })}
+                          </span>
+                        )}
+                        {featuredPengumuman.kategori && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary bg-red-50 border border-primary/20 px-2 py-0.5 rounded-xs">
+                            <FiFileText className="text-[11px]" />
+                            {featuredPengumuman.kategori}
+                          </span>
+                        )}
+                        <span className="font-bold text-primary uppercase tracking-wider text-xs tabular-nums">
+                          {featuredPengumuman.tanggal}
+                        </span>
+                        {featuredPengumuman.berlakuHingga && featuredPengumuman.berlakuHingga !== "—" && (
+                          <span className="inline-flex items-center gap-1 text-[11px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-xs">
+                            <FiClock className="text-xs" />
+                            {t({ id: "Berlaku s.d.", en: "Valid until" })} {featuredPengumuman.berlakuHingga}
+                          </span>
+                        )}
+                      </div>
+
+                      <div>
+                        <Link to={detailUrl}>
+                          <h2 className="font-heading font-normal text-2xl sm:text-3xl lg:text-[34px] text-heading leading-snug hover:text-primary transition-colors">
+                            {featuredPengumuman.title}
+                          </h2>
+                        </Link>
+                      </div>
+
+                      <p className="text-sm sm:text-base text-body leading-relaxed line-clamp-4">
+                        {featuredContent}
+                      </p>
+
+                      {Array.isArray(featuredPengumuman.lampiran) && featuredPengumuman.lampiran.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            {t({ id: "Lampiran:", en: "Attachments:" })}
+                          </span>
+                          {featuredPengumuman.lampiran.map((file, idx) => (
+                            <a
+                              key={idx}
+                              href={file.url}
+                              download={file.nama}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline bg-red-50/80 border border-primary/20 px-2.5 py-1 rounded-xs"
+                            >
+                              <FiDownload className="text-xs" />
+                              <span>{file.judul || file.nama}</span>
+                              <span className="text-[10px] text-gray-500">({file.ukuran})</span>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="pt-2">
+                        <Link
+                          to={detailUrl}
+                          className="inline-flex items-center text-xs font-bold tracking-wider text-primary hover:text-[#680000] uppercase transition-colors group/btn"
+                        >
+                          <span>{t({ id: "BACA PENGUMUMAN LENGKAP", en: "READ FULL ANNOUNCEMENT" })}</span>
+                          <span className="ml-1.5 transition-transform group-hover/btn:translate-x-1">&rarr;</span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            );
+          })()}
+
+          {/* =====================================================
+              ANNOUNCEMENTS LIST
           ===================================================== */}
 
           {!isBerita && (
-            <section className="space-y-6">
+            <section ref={newsSectionRef} className="space-y-6">
               {/* HEADER */}
 
               <div className="border-b-2 border-heading pb-3 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
                 <div>
                   <h2 className="font-heading font-normal text-3xl sm:text-4xl text-heading tracking-normal">
-                    {t(halaman.judulPengumuman)}
+                    {allOtherPengumuman.length > 0
+                      ? t({ id: "Daftar Pengumuman Lainnya", en: "Other Announcements" })
+                      : t(halaman.judulPengumuman)}
                   </h2>
 
                   <p className="text-xs sm:text-sm text-gray-500 mt-1">
@@ -802,18 +1050,18 @@ export default function BeritaIndex() {
                 </div>
 
                 <span className="text-xs font-semibold text-primary uppercase tracking-wider bg-red-50 border border-primary/20 px-3 py-1 rounded-xs w-fit">
-                  {pengumumanItems.length}{" "}
+                  {allOtherPengumuman.length}{" "}
                   {t({ id: "Pengumuman", en: "Announcements" })}
                 </span>
               </div>
 
-              {pengumumanItems.length > 0 ? (
+              {allOtherPengumuman.length > 0 ? (
                 <div className="space-y-6">
-                  {pengumumanItems.map((item) => (
+                  {currentPengumumanList.map((item) => (
                     <PengumumanCard key={item.id} item={item} />
                   ))}
                 </div>
-              ) : (
+              ) : !featuredPengumuman ? (
                 <div className="border border-dashed border-gray-300 bg-white p-10 sm:p-14 text-center rounded-xs">
                   <p className="text-sm font-medium text-gray-500">
                     {t(halaman.pengumumanKosong)}
@@ -825,7 +1073,15 @@ export default function BeritaIndex() {
                     )}
                   </p>
                 </div>
-              )}
+              ) : null}
+
+              {/* PAGINATION FOR PENGUMUMAN */}
+              <PaginationBar
+                currentPage={currentPage}
+                totalPages={totalPengumumanPages}
+                onPageChange={handlePageChange}
+                ui={ui}
+              />
             </section>
           )}
         </div>

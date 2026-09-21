@@ -39,3 +39,7 @@ input-berita/*
 .env.*.local
 
 I18N_CHECKLIST.md
+fix-notes
+strapi.md
+local
+.agents

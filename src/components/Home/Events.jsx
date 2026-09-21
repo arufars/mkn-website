@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
 import Img from "../ui/Img";
 import { eventData } from "../../data/eventData";
+import { getHybridEventList } from "../../services/eventService";
 import { useLanguage, useT } from "../../i18n/languageContext";
 import { useUi } from "../../i18n/useUi";
 
@@ -62,13 +64,31 @@ const cardVariants = {
   },
 };
 
-/* Tiga agenda terdekat; selebihnya ada di halaman /event. */
-const eventsData = eventData.slice(0, 3);
-
 export default function Events() {
   const { lang } = useLanguage();
   const t = useT();
   const ui = useUi();
+
+  // Inisialisasi awal dengan data lokal terdekat, lalu diperbarui dengan data hybrid
+  const [eventsData, setEventsData] = useState(() => (eventData || []).slice(0, 3));
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadEvents() {
+      try {
+        const hybridList = await getHybridEventList({ locale: lang });
+        if (isMounted && Array.isArray(hybridList) && hybridList.length > 0) {
+          setEventsData(hybridList.slice(0, 3));
+        }
+      } catch (err) {
+        console.warn("[Home/Events] Error fetching hybrid events:", err);
+      }
+    }
+    loadEvents();
+    return () => {
+      isMounted = false;
+    };
+  }, [lang]);
 
   const formatDateBadge = (dateString) => {
     const dateObj = new Date(dateString);
