@@ -105,6 +105,7 @@ function EventV2Redirect() {
 const AlumniLayout = lazy(() => import("./pages/Alumni/index"));
 const TracerStudy = lazy(() => import("./pages/Alumni/TracerStudy"));
 const Ikanotsula = lazy(() => import("./pages/Alumni/Ikanotsula"));
+const Reuni = lazy(() => import("./pages/Alumni/Reuni"));
 const CareerCenter = lazy(() => import("./pages/Alumni/CareerCenter"));
 const JobVacancies = lazy(() => import("./pages/Alumni/JobVacancies"));
 
@@ -125,189 +126,190 @@ export default function App() {
       {/* Menangkap galat render dan chunk yang gagal dimuat di semua
           halaman; pulih sendiri saat pengguna berpindah alamat. */}
       <BatasGalatRute>
-      <Suspense fallback={<Loading />}>
-        <Routes>
-        <Route path="/" element={<Home />} />
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
 
-        {/* Profil — nested routes */}
-        <Route path="/profil" element={<ProfilLayout />}>
-          <Route index element={<Navigate to="sejarah" replace />} />
-          <Route path="sejarah" element={<Sejarah />} />
-          <Route path="sejarah-latar-belakang" element={<Navigate to="/profil/sejarah" replace />} />
-          <Route path="visi-misi" element={<VisiMisi />} />
-          <Route path="tujuan" element={<Tujuan />} />
-          <Route path="struktur-organisasi" element={<StrukturOrganisasi />} />
-        </Route>
-
-        {/* Berita — catalog & detail routes */}
-        <Route path="/berita" element={<BeritaIndex />} />
-        <Route path="/berita/:slug" element={<BeritaDetail />} />
-        <Route path="/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
-        <Route path="/pengumuman/:slug" element={<PengumumanDetail />} />
-
-
-        {/* Akademik — nested routes */}
-        <Route path="/akademik" element={<AkademikLayout />}>
-          <Route index element={<Navigate to="profil-lulusan" replace />} />
-          <Route path="profil-lulusan" element={<ProfilLulusan />} />
-          <Route path="capaian-pembelajaran" element={<CapaianPembelajaran />} />
-          <Route path="kurikulum" element={<Kurikulum />} />
-          {/* Alias lama: kurikulum tidak lagi dipisah reguler/internasional */}
-          <Route path="kurikulum/*" element={<Navigate to="../kurikulum" replace />} />
-          <Route path="panduan-akademik" element={<Panduan />} />
-          {/* Khusus mahasiswa — tautan formulir dibuka dengan kata sandi */}
-          <Route path="panduan-akademik/pendaftaran-tesis" element={<PendaftaranTesis />} />
-          {/* RPS & Evaluasi Pembelajaran — tiga halaman anak, tanpa tab */}
-          <Route path="pembelajaran">
-            <Route index element={<Navigate to="rps" replace />} />
-            <Route path="rps" element={<Rps />} />
-            <Route path="panduan-evaluasi" element={<PanduanEvaluasi />} />
-          </Route>
-          {/* Alias lama */}
-          <Route path="panduan-evaluasi" element={<Navigate to="../pembelajaran/panduan-evaluasi" replace />} />
-          <Route path="asesmen" element={<Navigate to="../pembelajaran/asesmen" replace />} />
-          <Route path="panduan-ujian" element={<PanduanUjian />}>
-            <Route index element={<Navigate to="uts-uas" replace />} />
-            <Route path="uts-uas" element={<UtsUas />} />
-            <Route path="tesis" element={<Tesis />}>
-              <Route index element={<Navigate to="pra-proposal" replace />} />
-              <Route path="pra-proposal" element={<TesisPraProposal />} />
-              <Route path="proposal" element={<TesisProposal />} />
-              <Route path="ujian-tesis" element={<TesisUjian />} />
+            {/* Profil — nested routes */}
+            <Route path="/profil" element={<ProfilLayout />}>
+              <Route index element={<Navigate to="sejarah" replace />} />
+              <Route path="sejarah" element={<Sejarah />} />
+              <Route path="sejarah-latar-belakang" element={<Navigate to="/profil/sejarah" replace />} />
+              <Route path="visi-misi" element={<VisiMisi />} />
+              <Route path="tujuan" element={<Tujuan />} />
+              <Route path="struktur-organisasi" element={<StrukturOrganisasi />} />
             </Route>
-            {/* Alias lama: Magang tidak lagi menjadi sub-menu Panduan Ujian */}
-            <Route path="magang" element={<Navigate to="../tesis" replace />} />
-            {/* Alias lama: istilah diubah dari Skripsi ke Tesis */}
-            <Route path="skripsi" element={<Navigate to="../tesis" replace />} />
-          </Route>
-          <Route path="kalender" element={<Kalender />} />
-          <Route path="sistem-informasi" element={<SistemInformasi />} />
-          <Route path="jurnal" element={<Jurnal />} />
-          <Route path="perpustakaan" element={<ELibrary />} />
-        </Route>
 
-        {/* Informasi — nested routes */}
-        <Route path="/informasi" element={<InformasiLayout />}>
-          <Route index element={<Navigate to="penerimaan-mahasiswa" replace />} />
-          <Route path="penerimaan-mahasiswa" element={<StudentAdmission />} />
-          <Route path="tingkat-kelulusan" element={<GraduationRate />} />
-          <Route path="penelitian-dosen" element={<LecturerResearch />} />
-          <Route path="pengabdian-dosen" element={<CommunityService />} />
-        </Route>
-        {/* Legacy redirect */}
-        <Route path="/penerimaan" element={<Navigate to="/informasi/penerimaan-mahasiswa" replace />} />
-        <Route path="/penerimaan/*" element={<Navigate to="/informasi" replace />} />
+            {/* Berita — catalog & detail routes */}
+            <Route path="/berita" element={<BeritaIndex />} />
+            <Route path="/berita/:slug" element={<BeritaDetail />} />
+            <Route path="/pengumuman" element={<Navigate to="/berita?kategori=pengumuman" replace />} />
+            <Route path="/pengumuman/:slug" element={<PengumumanDetail />} />
 
-        {/* Staff — nested routes */}
-        <Route path="/staff" element={<StaffLayout />}>
-          <Route index element={<Navigate to="dosen" replace />} />
-          <Route path="dosen" element={<FacultyDirectory />} />
-          <Route path="dosen/:slug" element={<FacultyDetail />} />
-          <Route path="tendik" element={<Tendik />} />
-          <Route path="faculty-directory" element={<FacultyDirectory />} />
-          <Route path="faculty-directory/:slug" element={<FacultyDetail />} />
-        </Route>
 
-        {/* Download route */}
-        <Route path="/download" element={<Download />} />
+            {/* Akademik — nested routes */}
+            <Route path="/akademik" element={<AkademikLayout />}>
+              <Route index element={<Navigate to="profil-lulusan" replace />} />
+              <Route path="profil-lulusan" element={<ProfilLulusan />} />
+              <Route path="capaian-pembelajaran" element={<CapaianPembelajaran />} />
+              <Route path="kurikulum" element={<Kurikulum />} />
+              {/* Alias lama: kurikulum tidak lagi dipisah reguler/internasional */}
+              <Route path="kurikulum/*" element={<Navigate to="../kurikulum" replace />} />
+              <Route path="panduan-akademik" element={<Panduan />} />
+              {/* Khusus mahasiswa — tautan formulir dibuka dengan kata sandi */}
+              <Route path="panduan-akademik/pendaftaran-tesis" element={<PendaftaranTesis />} />
+              {/* RPS & Evaluasi Pembelajaran — tiga halaman anak, tanpa tab */}
+              <Route path="pembelajaran">
+                <Route index element={<Navigate to="rps" replace />} />
+                <Route path="rps" element={<Rps />} />
+                <Route path="panduan-evaluasi" element={<PanduanEvaluasi />} />
+              </Route>
+              {/* Alias lama */}
+              <Route path="panduan-evaluasi" element={<Navigate to="../pembelajaran/panduan-evaluasi" replace />} />
+              <Route path="asesmen" element={<Navigate to="../pembelajaran/asesmen" replace />} />
+              <Route path="panduan-ujian" element={<PanduanUjian />}>
+                <Route index element={<Navigate to="uts-uas" replace />} />
+                <Route path="uts-uas" element={<UtsUas />} />
+                <Route path="tesis" element={<Tesis />}>
+                  <Route index element={<Navigate to="pra-proposal" replace />} />
+                  <Route path="pra-proposal" element={<TesisPraProposal />} />
+                  <Route path="proposal" element={<TesisProposal />} />
+                  <Route path="ujian-tesis" element={<TesisUjian />} />
+                </Route>
+                {/* Alias lama: Magang tidak lagi menjadi sub-menu Panduan Ujian */}
+                <Route path="magang" element={<Navigate to="../tesis" replace />} />
+                {/* Alias lama: istilah diubah dari Skripsi ke Tesis */}
+                <Route path="skripsi" element={<Navigate to="../tesis" replace />} />
+              </Route>
+              <Route path="kalender" element={<Kalender />} />
+              <Route path="sistem-informasi" element={<SistemInformasi />} />
+              <Route path="jurnal" element={<Jurnal />} />
+              <Route path="perpustakaan" element={<ELibrary />} />
+            </Route>
 
-        {/* Layanan Pengaduan & Bantuan — Standalone page */}
-        <Route path="/layanan-pengaduan" element={<LayananPengaduan />} />
-        <Route path="/pengaduan" element={<Navigate to="/layanan-pengaduan" replace />} />
-        <Route path="/pengaduan-bantuan" element={<Navigate to="/layanan-pengaduan" replace />} />
-        <Route path="/bantuan" element={<Navigate to="/layanan-pengaduan" replace />} />
+            {/* Informasi — nested routes */}
+            <Route path="/informasi" element={<InformasiLayout />}>
+              <Route index element={<Navigate to="penerimaan-mahasiswa" replace />} />
+              <Route path="penerimaan-mahasiswa" element={<StudentAdmission />} />
+              <Route path="tingkat-kelulusan" element={<GraduationRate />} />
+              <Route path="penelitian-dosen" element={<LecturerResearch />} />
+              <Route path="pengabdian-dosen" element={<CommunityService />} />
+            </Route>
+            {/* Legacy redirect */}
+            <Route path="/penerimaan" element={<Navigate to="/informasi/penerimaan-mahasiswa" replace />} />
+            <Route path="/penerimaan/*" element={<Navigate to="/informasi" replace />} />
 
-        {/* Fasilitas — nested routes */}
-        <Route path="/fasilitas" element={<FasilitasLayout />}>
-          <Route index element={<Navigate to="ruang-kelas" replace />} />
-          <Route path="ruang-kelas" element={<RuangKelas />} />
-          <Route path="ruang-seminar" element={<RuangSeminar />} />
-          <Route path="laboratorium-akta" element={<LaboratoriumAkta />} />
-          <Route
-            path="laboratorium-manajemen-kantor"
-            element={<LaboratoriumManajemenKantor />}
-          />
-          <Route path="student-research-center" element={<ResearchCenter />} />
-          <Route path="podcast-kenotariatan" element={<Podcast />} />
-          <Route path="perpustakaan" element={<Perpustakaan />} />
-          {/* Tautan lama sebelum laboratorium dipecah menjadi dua halaman. */}
-          <Route path="laboratorium" element={<Navigate to="/fasilitas/laboratorium-akta" replace />} />
-          {/* Peradilan semu sudah tidak lagi menjadi fasilitas program studi;
+            {/* Staff — nested routes */}
+            <Route path="/staff" element={<StaffLayout />}>
+              <Route index element={<Navigate to="dosen" replace />} />
+              <Route path="dosen" element={<FacultyDirectory />} />
+              <Route path="dosen/:slug" element={<FacultyDetail />} />
+              <Route path="tendik" element={<Tendik />} />
+              <Route path="faculty-directory" element={<FacultyDirectory />} />
+              <Route path="faculty-directory/:slug" element={<FacultyDetail />} />
+            </Route>
+
+            {/* Download route */}
+            <Route path="/download" element={<Download />} />
+
+            {/* Layanan Pengaduan & Bantuan — Standalone page */}
+            <Route path="/layanan-pengaduan" element={<LayananPengaduan />} />
+            <Route path="/pengaduan" element={<Navigate to="/layanan-pengaduan" replace />} />
+            <Route path="/pengaduan-bantuan" element={<Navigate to="/layanan-pengaduan" replace />} />
+            <Route path="/bantuan" element={<Navigate to="/layanan-pengaduan" replace />} />
+
+            {/* Fasilitas — nested routes */}
+            <Route path="/fasilitas" element={<FasilitasLayout />}>
+              <Route index element={<Navigate to="ruang-kelas" replace />} />
+              <Route path="ruang-kelas" element={<RuangKelas />} />
+              <Route path="ruang-seminar" element={<RuangSeminar />} />
+              <Route path="laboratorium-akta" element={<LaboratoriumAkta />} />
+              <Route
+                path="laboratorium-manajemen-kantor"
+                element={<LaboratoriumManajemenKantor />}
+              />
+              <Route path="student-research-center" element={<ResearchCenter />} />
+              <Route path="podcast-kenotariatan" element={<Podcast />} />
+              <Route path="perpustakaan" element={<Perpustakaan />} />
+              {/* Tautan lama sebelum laboratorium dipecah menjadi dua halaman. */}
+              <Route path="laboratorium" element={<Navigate to="/fasilitas/laboratorium-akta" replace />} />
+              {/* Peradilan semu sudah tidak lagi menjadi fasilitas program studi;
               tautan lamanya diarahkan ke daftar fasilitas agar tidak jadi 404. */}
-          <Route path="moot-court" element={<Navigate to="/fasilitas/ruang-kelas" replace />} />
-        </Route>
+              <Route path="moot-court" element={<Navigate to="/fasilitas/ruang-kelas" replace />} />
+            </Route>
 
-        {/* Quality Assurance Unit — nested routes */}
-        <Route path="/quality-assurance" element={<QualityAssuranceLayout />}>
-          <Route index element={<QualityAssuranceOverview />} />
-          <Route path="qa-documents" element={<QaDocuments />} />
-          <Route path="qa-documents/qa-policy" element={<QaPolicy />} />
-          <Route path="qa-documents/qa-manual-standard" element={<QaManualStandard />} />
-          <Route path="qa-documents/qa-standar" element={<QaStandar />} />
-          <Route path="qa-documents/qa-forms" element={<QaForms />} />
-          <Route path="internal-audit-report" element={<InternalAuditReport />} />
-          <Route path="learning-teaching-report" element={<LearningTeachingReport />} />
-          <Route path="student-survey-report" element={<StudentSurveyReport />} />
-          <Route path="alumni-survey-report" element={<AlumniSurveyReport />} />
-        </Route>
+            {/* Quality Assurance Unit — nested routes */}
+            <Route path="/quality-assurance" element={<QualityAssuranceLayout />}>
+              <Route index element={<QualityAssuranceOverview />} />
+              <Route path="qa-documents" element={<QaDocuments />} />
+              <Route path="qa-documents/qa-policy" element={<QaPolicy />} />
+              <Route path="qa-documents/qa-manual-standard" element={<QaManualStandard />} />
+              <Route path="qa-documents/qa-standar" element={<QaStandar />} />
+              <Route path="qa-documents/qa-forms" element={<QaForms />} />
+              <Route path="internal-audit-report" element={<InternalAuditReport />} />
+              <Route path="learning-teaching-report" element={<LearningTeachingReport />} />
+              <Route path="student-survey-report" element={<StudentSurveyReport />} />
+              <Route path="alumni-survey-report" element={<AlumniSurveyReport />} />
+            </Route>
 
-        {/* Organisasi Mahasiswa — Standalone page langsung tanpa sidebar (organisasi hanya 1) */}
-        <Route path="/mahasiswa/organisasi" element={<StudentOrganizationDetail />} />
-        <Route path="/mahasiswa/organisasi/*" element={<Navigate to="/mahasiswa/organisasi" replace />} />
+            {/* Organisasi Mahasiswa — Standalone page langsung tanpa sidebar (organisasi hanya 1) */}
+            <Route path="/mahasiswa/organisasi" element={<StudentOrganizationDetail />} />
+            <Route path="/mahasiswa/organisasi/*" element={<Navigate to="/mahasiswa/organisasi" replace />} />
 
-        {/* Akomodasi — Standalone page dengan PageTabs Asrama & Guest House (tanpa sidebar) */}
-        <Route path="/mahasiswa/akomodasi" element={<Navigate to="/mahasiswa/akomodasi/asrama" replace />} />
-        {/* Tab "Pujasera" sudah berganti nama menjadi "Kantin"; tautan lama diarahkan ke slug baru. */}
-        <Route path="/mahasiswa/akomodasi/pujasera" element={<Navigate to="/mahasiswa/akomodasi/kantin" replace />} />
-        <Route path="/mahasiswa/akomodasi/:tab" element={<Accommodation />} />
+            {/* Akomodasi — Standalone page dengan PageTabs Asrama & Guest House (tanpa sidebar) */}
+            <Route path="/mahasiswa/akomodasi" element={<Navigate to="/mahasiswa/akomodasi/asrama" replace />} />
+            {/* Tab "Pujasera" sudah berganti nama menjadi "Kantin"; tautan lama diarahkan ke slug baru. */}
+            <Route path="/mahasiswa/akomodasi/pujasera" element={<Navigate to="/mahasiswa/akomodasi/kantin" replace />} />
+            <Route path="/mahasiswa/akomodasi/:tab" element={<Accommodation />} />
 
-        {/* Prestasi — Gallery foto prestasi mahasiswa */}
-        <Route path="/mahasiswa/prestasi" element={<Prestasi />} />
+            {/* Prestasi — Gallery foto prestasi mahasiswa */}
+            <Route path="/mahasiswa/prestasi" element={<Prestasi />} />
 
-        {/* Mahasiswa root & Fallback legacy routes */}
-        <Route path="/mahasiswa" element={<Navigate to="/mahasiswa/organisasi" replace />} />
-        <Route path="/mahasiswa/ukm/*" element={<Navigate to="/mahasiswa/organisasi" replace />} />
-        <Route path="/mahasiswa/ukm" element={<Navigate to="/mahasiswa/organisasi" replace />} />
+            {/* Mahasiswa root & Fallback legacy routes */}
+            <Route path="/mahasiswa" element={<Navigate to="/mahasiswa/organisasi" replace />} />
+            <Route path="/mahasiswa/ukm/*" element={<Navigate to="/mahasiswa/organisasi" replace />} />
+            <Route path="/mahasiswa/ukm" element={<Navigate to="/mahasiswa/organisasi" replace />} />
 
-        {/* Event / Agenda — Harvard Law School style calendar layout */}
-        <Route path="/event" element={<EventPage />} />
-        <Route path="/event/:slug" element={<EventDetailPage />} />
-        <Route path="/agenda" element={<Navigate to="/event" replace />} />
+            {/* Event / Agenda — Harvard Law School style calendar layout */}
+            <Route path="/event" element={<EventPage />} />
+            <Route path="/event/:slug" element={<EventDetailPage />} />
+            <Route path="/agenda" element={<Navigate to="/event" replace />} />
 
-        {/* Redirect Rute Usang Event V2 (Backward Compatibility) */}
-        <Route path="/event-v2" element={<Navigate to="/event" replace />} />
-        <Route path="/event-v2/:slug" element={<EventV2Redirect />} />
+            {/* Redirect Rute Usang Event V2 (Backward Compatibility) */}
+            <Route path="/event-v2" element={<Navigate to="/event" replace />} />
+            <Route path="/event-v2/:slug" element={<EventV2Redirect />} />
 
-        {/* Kerja Sama */}
-        <Route path="/kerja-sama" element={<KerjaSama />} />
+            {/* Kerja Sama */}
+            <Route path="/kerja-sama" element={<KerjaSama />} />
 
-        {/* Alumni & Karir — nested routes */}
-        <Route path="/alumni" element={<AlumniLayout />}>
-          <Route index element={<Navigate to="ikanotsula" replace />} />
-          <Route path="ikanotsula" element={<Ikanotsula />} />
-          <Route path="tracer-study" element={<TracerStudy />} />
-          <Route path="pusat-karir" element={<CareerCenter />} />
-          <Route path="lowongan" element={<JobVacancies />} />
-        </Route>
-        {/* Direct / Legacy Aliases */}
-        <Route path="/sejarah" element={<Navigate to="/profil/sejarah" replace />} />
-        <Route path="/visi-misi" element={<Navigate to="/profil/visi-misi" replace />} />
-        <Route path="/tujuan" element={<Navigate to="/profil/tujuan" replace />} />
-        <Route path="/struktur-organisasi" element={<Navigate to="/profil/struktur-organisasi" replace />} />
-        <Route path="/kurikulum" element={<Navigate to="/akademik/kurikulum" replace />} />
-        <Route path="/kurikulum/*" element={<Navigate to="/akademik/kurikulum" replace />} />
-        <Route path="/organisasi-mahasiswa" element={<Navigate to="/mahasiswa/organisasi" replace />} />
-        <Route path="/unit-kegiatan-mahasiswa" element={<Navigate to="/mahasiswa/organisasi" replace />} />
-        <Route path="/dosen" element={<Navigate to="/staff/dosen" replace />} />
-        <Route path="/tenaga-kependidikan" element={<Navigate to="/staff/tendik" replace />} />
-        <Route path="/pusat-karir" element={<Navigate to="/alumni/pusat-karir" replace />} />
-        <Route path="/qa-documents" element={<Navigate to="/quality-assurance/qa-documents" replace />} />
-        <Route path="/qa-documents/*" element={<Navigate to="/quality-assurance/qa-documents" replace />} />
-        <Route path="/alumni-karir" element={<Navigate to="/alumni" replace />} />
+            {/* Alumni & Karir — nested routes */}
+            <Route path="/alumni" element={<AlumniLayout />}>
+              <Route index element={<Navigate to="ikanotsula" replace />} />
+              <Route path="ikanotsula" element={<Ikanotsula />} />
+              <Route path="reuni" element={<Reuni />} />
+              <Route path="tracer-study" element={<TracerStudy />} />
+              <Route path="pusat-karir" element={<CareerCenter />} />
+              <Route path="lowongan" element={<JobVacancies />} />
+            </Route>
+            {/* Direct / Legacy Aliases */}
+            <Route path="/sejarah" element={<Navigate to="/profil/sejarah" replace />} />
+            <Route path="/visi-misi" element={<Navigate to="/profil/visi-misi" replace />} />
+            <Route path="/tujuan" element={<Navigate to="/profil/tujuan" replace />} />
+            <Route path="/struktur-organisasi" element={<Navigate to="/profil/struktur-organisasi" replace />} />
+            <Route path="/kurikulum" element={<Navigate to="/akademik/kurikulum" replace />} />
+            <Route path="/kurikulum/*" element={<Navigate to="/akademik/kurikulum" replace />} />
+            <Route path="/organisasi-mahasiswa" element={<Navigate to="/mahasiswa/organisasi" replace />} />
+            <Route path="/unit-kegiatan-mahasiswa" element={<Navigate to="/mahasiswa/organisasi" replace />} />
+            <Route path="/dosen" element={<Navigate to="/staff/dosen" replace />} />
+            <Route path="/tenaga-kependidikan" element={<Navigate to="/staff/tendik" replace />} />
+            <Route path="/pusat-karir" element={<Navigate to="/alumni/pusat-karir" replace />} />
+            <Route path="/qa-documents" element={<Navigate to="/quality-assurance/qa-documents" replace />} />
+            <Route path="/qa-documents/*" element={<Navigate to="/quality-assurance/qa-documents" replace />} />
+            <Route path="/alumni-karir" element={<Navigate to="/alumni" replace />} />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </BatasGalatRute>
     </>
   );

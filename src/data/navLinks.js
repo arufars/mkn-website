@@ -141,6 +141,7 @@ export const navLinks = [
     href: "/alumni",
     children: [
       { title: { id: "Ikanotsula", en: "Ikanotsula" }, href: "/alumni/ikanotsula" },
+      { title: { id: "Reuni", en: "Reunion" }, href: "/alumni/reuni" },
       { title: { id: "Penelusuran Alumni", en: "Tracer Study" }, href: "/alumni/tracer-study" },
       { title: { id: "Pusat Karir", en: "Career Centre" }, href: "/alumni/pusat-karir" },
       { title: { id: "Lowongan Pekerjaan", en: "Job Vacancies" }, href: "/alumni/lowongan" },
