@@ -7,69 +7,7 @@ import { facultyData } from "../../data/facultyData";
 import Img from "../../components/ui/Img";
 import { useT, useLanguage, pick } from "../../i18n/languageContext";
 
-/**
- * Urutan tampil daftar dosen: jenjang jabatan akademik dari yang tertinggi,
- * lalu jabatan struktural di dalam jenjang yang sama, dan terakhir abjad nama
- * tanpa gelar. Guru Besar yang menjabat Rektor karenanya berada paling awal.
- *
- * Jenjangnya dibaca dari `title` karena `type` hanya membedakan status
- * kepegawaian (Guru Besar / Dosen Tetap / Dosen Luar Biasa), bukan jabatan
- * fungsional. Guru Besar diperiksa lebih dulu: sebagian judul menyebut dua
- * jenjang sekaligus, mis. "Guru Besar Ilmu Hukum / Lektor Kepala".
- */
-const JENJANG = [
-    { peringkat: 1, cocok: /guru besar|profesor/i },
-    { peringkat: 2, cocok: /lektor kepala|associate professor/i },
-    { peringkat: 3, cocok: /lektor|assistant professor/i },
-    { peringkat: 4, cocok: /asisten ahli/i },
-];
 
-/** Dosen tanpa jenjang tertulis ditaruh paling belakang, bukan disamakan. */
-const TANPA_JENJANG = 99;
-
-/**
- * Jabatan struktural, dari yang tertinggi. Hanya berlaku sebagai pembeda di
- * dalam satu jenjang akademik — pimpinan tidak melompati jenjang di atasnya,
- * sehingga Ketua Program Studi yang berjenjang Lektor tetap berada di bawah
- * para Lektor Kepala.
- */
-const PIMPINAN = [
-    { peringkat: 1, cocok: /rektor/i },
-    { peringkat: 2, cocok: /ketua pengurus yayasan|ybwsa/i },
-    { peringkat: 3, cocok: /dekan/i },
-    { peringkat: 4, cocok: /ketua program studi/i },
-    { peringkat: 5, cocok: /sekretaris program studi/i },
-];
-
-/** Tanpa jabatan struktural — diurutkan sesudah yang menjabat. */
-const TANPA_JABATAN = 99;
-
-/**
- * `title` dan `bio` sebagian dosen sudah berbentuk { id, en }, sebagian masih
- * string. Pengurutan selalu memakai teks Indonesia agar urutannya tidak
- * berubah saat bahasa diganti.
- */
-const jabatanId = (dosen) => pick(dosen.title, "id") || "";
-
-function peringkatPimpinan(dosen) {
-    const jabatan = PIMPINAN.find((j) => j.cocok.test(jabatanId(dosen)));
-    return jabatan ? jabatan.peringkat : TANPA_JABATAN;
-}
-
-function peringkatJabatan(dosen) {
-    const jenjang = JENJANG.find((j) => j.cocok.test(jabatanId(dosen)));
-    return jenjang ? jenjang.peringkat : TANPA_JENJANG;
-}
-
-function bandingkanDosen(a, b) {
-    const selisihJenjang = peringkatJabatan(a) - peringkatJabatan(b);
-    if (selisihJenjang !== 0) return selisihJenjang;
-
-    const selisihPimpinan = peringkatPimpinan(a) - peringkatPimpinan(b);
-    if (selisihPimpinan !== 0) return selisihPimpinan;
-
-    return (a.shortName || a.name).localeCompare(b.shortName || b.name, "id");
-}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -173,7 +111,7 @@ export default function FacultyDirectory() {
                 appliedFilters.type === "Semua Tipe" || pick(item.type, "id") === appliedFilters.type;
 
             return matchSearch && matchExpertise && matchType;
-        }).sort(bandingkanDosen);
+        });
     }, [appliedFilters]);
 
     const displayedFaculty = filteredFaculty.slice(0, visibleCount);
