@@ -32,11 +32,32 @@ function getTodayKey() {
   return wib.toISOString().slice(0, 10);
 }
 
+/**
+ * Memastikan nilai yang diterima selalu berupa integer non-negatif.
+ * Jika nilai sebelumnya korup (misal string "[object Object]111..."),
+ * pulihkan dengan menghitung jumlah digit '1' yang tertempel.
+ */
+function toValidNumber(val) {
+  if (typeof val === "number" && !isNaN(val)) {
+    return Math.max(0, Math.floor(val));
+  }
+  if (typeof val === "string") {
+    if (val.includes("[object")) {
+      const ones = val.replace(/[^1]/g, "");
+      return Math.max(0, ones.length);
+    }
+    const parsed = parseInt(val, 10);
+    return isNaN(parsed) ? 0 : Math.max(0, parsed);
+  }
+  return 0;
+}
+
 export function useVisitorCounter() {
   /** { total: number|null, today: number|null } */
   const [stats, setStats] = useState({ total: null, today: null });
 
   useEffect(() => {
+    let isMounted = true;
     const today = getTodayKey();
     const alreadyCounted = localStorage.getItem(getStorageKey());
 
@@ -53,20 +74,25 @@ export function useVisitorCounter() {
         ]);
         if (!rTotal.ok || !rToday.ok) throw new Error("Read error");
 
-        const currentTotal = (await rTotal.json()) ?? 0;
-        const currentToday = (await rToday.json()) ?? 0;
+        const rawTotal = await rTotal.json();
+        const rawToday = await rToday.json();
+
+        const currentTotal = toValidNumber(rawTotal);
+        const currentToday = toValidNumber(rawToday);
 
         const newTotal = currentTotal + 1;
         const newToday = currentToday + 1;
 
-        // Tulis keduanya secara paralel
+        // Tulis keduanya secara paralel (pastikan number murni yang dikirim)
         await Promise.all([
           fetch(totalUrl, { method: "PUT", headers, body: JSON.stringify(newTotal) }),
           fetch(todayUrl, { method: "PUT", headers, body: JSON.stringify(newToday) }),
         ]);
 
         localStorage.setItem(getStorageKey(), "1");
-        setStats({ total: newTotal, today: newToday });
+        if (isMounted) {
+          setStats({ total: newTotal, today: newToday });
+        }
       } catch (err) {
         console.error("[VisitorCounter] Gagal increment:", err);
       }
@@ -78,9 +104,17 @@ export function useVisitorCounter() {
           fetch(totalUrl),
           fetch(todayUrl),
         ]);
-        const total = (await rTotal.json()) ?? 0;
-        const today = (await rToday.json()) ?? 0;
-        setStats({ total, today });
+        if (!rTotal.ok || !rToday.ok) throw new Error("Read error");
+
+        const rawTotal = await rTotal.json();
+        const rawToday = await rToday.json();
+
+        const total = toValidNumber(rawTotal);
+        const today = toValidNumber(rawToday);
+
+        if (isMounted) {
+          setStats({ total, today });
+        }
       } catch (err) {
         console.error("[VisitorCounter] Gagal baca:", err);
       }
@@ -91,6 +125,10 @@ export function useVisitorCounter() {
     } else {
       fetchOnly();
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return stats;
